@@ -1,0 +1,19 @@
+# OS cruft
+.DS_Store
+Thumbs.db
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+
+# Node (if using npx serve or other tooling)
+node_modules/
+npm-debug.log*
+
+# Logs / environment
+*.log
+.env
+
+# Python (e.g. python -m http.server)
+__pycache__/

@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ubiquitous Analytics Lineage</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  body { font-family: Georgia, 'Times New Roman', serif; margin: 0; padding: 24px; color: #222; background: #fafaf8; }
+  h2 { font-size: 16px; font-weight: normal; margin: 0 0 4px; }
+  .controls { margin-bottom: 10px; font-size: 12px; }
+  .controls label { margin-right: 16px; }
+  .controls button { margin-right: 8px; padding: 4px 10px; font-family: inherit; font-size: 11px; cursor: pointer; border: 1px solid #999; background: white; }
+  .controls button.active { background: #222; color: white; border-color: #222; }
+  .controls .group { margin-bottom: 8px; }
+  .panel-title { font-size: 12px; font-weight: bold; letter-spacing: 0.5px; }
+  .axis-label { font-size: 11px; fill: #333; }
+  .col-label { font-size: 10px; }
+  .row-label { font-size: 11px; cursor: pointer; }
+  .row-label.highlighted { font-weight: bold; }
+  .col-label.highlighted { font-weight: bold; }
+  .col-label.offscreen { font-style: italic; }
+  .grid-line { stroke: #eee; stroke-width: 0.5; }
+  .year-tick { stroke: #ccc; stroke-width: 0.5; }
+  .period-rule { stroke: #d0d0d0; stroke-width: 0.5; stroke-dasharray: 2,2; }
+  .divider { stroke: #bbb; stroke-width: 1; }
+  .dot { cursor: pointer; }
+  .connector { stroke-width: 1.2; fill: none; }
+  .lifespan { cursor: pointer; }
+  .strand-arrow { pointer-events: none; }
+  .hover-band { fill-opacity: 0.10; stroke-opacity: 0.38; stroke-width: 1; pointer-events: none; }
+  .legend-text { font-size: 10px; fill: #333; }
+  #tooltip { position: absolute; display: none; pointer-events: none;
+    background: #fff; border: 1px solid #999; padding: 3px 7px;
+    font-size: 11px; color: #222; font-family: Georgia, 'Times New Roman', serif; }
+  #error { color: #a00; font-size: 13px; margin: 16px 0; display: none; }
+  #error code { background: #eee; padding: 1px 5px; }
+</style>
+</head>
+<body>
+
+<h2 id="period-title">Ubiquitous Analytics Lineage</h2>
+
+<div class="controls">
+  <div class="group">
+    <strong>Period:</strong>
+    <span id="period-selector"></span>
+  </div>
+  <div class="group">
+    <strong>Sort rows:</strong>
+    <button data-sort="chrono" class="row-sort active">Chronological</button>
+    <button data-sort="ancestors" class="row-sort">By ancestor count</button>
+    <button data-sort="descendants" class="row-sort">By descendant count</button>
+    <button data-sort="cluster" class="row-sort">By cluster</button>
+    &nbsp;&nbsp;|&nbsp;&nbsp;
+    <strong>Sort columns:</strong>
+    <button data-csort="chrono" class="col-sort active">Chronological</button>
+    <button data-csort="degree" class="col-sort">By degree</button>
+    <button data-csort="cluster" class="col-sort">By cluster</button>
+    &nbsp;&nbsp;|&nbsp;&nbsp;
+    <label><input type="checkbox" id="group-toggle" checked> Group by strand</label>
+    &nbsp;&nbsp;|&nbsp;&nbsp;
+    <button id="reset">Reset focus</button>
+    &nbsp;&nbsp;|&nbsp;&nbsp;
+    <button id="mono-toggle">Monochrome</button>
+    <button id="export-svg">Export SVG</button>
+  </div>
+</div>
+
+<div id="error"></div>
+<svg id="chart" width="1400" height="720"></svg>
+<div id="tooltip"></div>
+
+<script>
+// =====================================================================
+// CLUSTERS — the seven project clusters (colours from CLAUDE.md)
+// =====================================================================
+const CLUSTERS = {
+  cognition:     { color: "#4A7FB5", glyph: "▲", label: "Cognition" },
+  context:       { color: "#5B9A6D", glyph: "●", label: "Context / environment" },
+  interaction:   { color: "#D4883A", glyph: "◆", label: "Interaction" },
+  platforms:     { color: "#8C8C8C", glyph: "⬢", label: "Platforms" },
+  visualization: { color: "#C96B6B", glyph: "■", label: "Visualization" },
+  collaboration: { color: "#8B6BAF", glyph: "★", label: "Collaboration" },
+  evaluation:    { color: "#4A9B9B", glyph: "✦", label: "Evaluation" }
+};
+const CLUSTER_ORDER = ["cognition","context","interaction","platforms",
+                       "visualization","collaboration","evaluation"];
+function clusterMeta(c) {
+  return CLUSTERS[c] || { color: "#666", glyph: "·", label: c || "—" };
+}
+
+// =====================================================================
+// LAYOUT CONSTANTS
+// =====================================================================
+const MATRIX_X = 240, MATRIX_Y = 200;
+// Row height: the base 26 px, or a taller value when a multi-member strand
+// is on screen and needs room for per-segment labels. Set per render().
+const ROW_H_BASE = 26, ROW_H_TALL = 42;
+let ROW_H = ROW_H_BASE;
+// Column width adapts to the column count (set per render): full width for a
+// sparse matrix, compacted toward MIN_COL_W so a dense matrix — above all the
+// "All" view — still fits without an unreadably wide canvas. COL_W_BUDGET is
+// the target total matrix width the compaction aims at.
+const MAX_COL_W = 44, MIN_COL_W = 16, COL_W_BUDGET = 1100;
+let COL_W = MAX_COL_W;
+const GANTT_W = 560, GANTT_GAP = 44;
+const OFFSCREEN_GREY = "#9a9a9a";   // off-screen (external / Ur) column labels
+
+// Emphasis tiers and natural base opacities.
+const OP = { focused: 1.0, related: 0.6, unrelated: 0.15 };
+const BASE = { dot: 1.0, connector: 0.5, lifespan: 0.85, label: 1.0 };
+const HOVER_DIM = 0.6;              // soft-preview dim level
+
+// Default sort direction per mode.
+const DEFAULT_DIR = {
+  chrono: "asc", cluster: "asc",
+  ancestors: "desc", descendants: "desc", degree: "desc"
+};
+
+// =====================================================================
+// MONOCHROME ENCODING — Bertin achromatic: cluster by shape (dots) and
+// texture (bars), not hue. One distinct shape and pattern per cluster.
+// =====================================================================
+const MONO_SYMBOLS = {
+  cognition:     d3.symbolTriangle,
+  context:       d3.symbolCircle,
+  interaction:   d3.symbolDiamond,
+  platforms:     d3.symbolWye,
+  visualization: d3.symbolSquare,
+  collaboration: d3.symbolStar,
+  evaluation:    d3.symbolCross
+};
+const MONO_PATTERNS = {
+  cognition:     "pat-solid",
+  context:       "pat-diag",
+  interaction:   "pat-anti",
+  platforms:     "pat-cross",
+  visualization: "pat-dots",
+  collaboration: "pat-horiz",
+  evaluation:    "pat-vert"
+};
+const DOT_AREA = 95;   // d3.symbol .size(), tuned to read like the r=5.5 dot
+function monoSymbol(c) { return MONO_SYMBOLS[c] || d3.symbolCircle; }
+function monoPattern(c) { return MONO_PATTERNS[c] || "pat-solid"; }
+function dotTransform(x) { return `translate(${x},0)`; }
+
+// =====================================================================
+// PERIODS — the seven time periods, hardcoded. The whole dataset lives in
+// one JSON file; a period is just a year window applied client-side.
+//   win*  — membership window: a node is an in-period row when its lifespan
+//           span overlaps [winMin, winMax]. The open ends (pre-2000 has no
+//           lower bound, 2033-onward no upper bound) use ±Infinity.
+//   axis* — the Gantt/grid window drawn for the period (curated header years).
+// =====================================================================
+const PERIODS = [
+  { key:"pre-2000",    label:"Pre-2000",    winMin:-Infinity, winMax:2000,     axisMin:1986, axisMax:2000 },
+  { key:"2000-2012",   label:"2000-2012",   winMin:2000,      winMax:2012,     axisMin:2000, axisMax:2012 },
+  { key:"2013-2022",   label:"2013-2022",   winMin:2013,      winMax:2022,     axisMin:2013, axisMax:2022 },
+  { key:"2023-2026",   label:"2023-2026",   winMin:2023,      winMax:2026,     axisMin:2023, axisMax:2026 }
+];
+const ALL_PERIOD = { key:"all", label:"All" };
+
+// In-period == the node's lifespan span overlaps the period window.
+function inPeriod(t, p) { return t.end >= p.winMin && t.start <= p.winMax; }
+
+// =====================================================================
+// DATA + STATE  (filled by selectPeriod / rebuildLayout)
+// =====================================================================
+let ALL_THEMES = [];      // full merged theme list, fetched once at init
+let ALL_BY_ID = {};       // id -> theme, across the whole dataset
+let STRANDS = {};         // {strandId: {label, members:[nodeId,...]}}
+let THEMES = [];          // [{id,name,shortName,cluster,type,subtitle,start,end,ancestors,external,ur,strand}]
+let COL_THEMES = [];      // themes that appear as columns
+// A row unit is one chart row: either a multi-member strand or a single node.
+//   {rowId, isStrand, cluster, members:[theme,...]}
+let ROW_UNITS = [];
+let ROW_BY_ID = {};       // rowId -> row unit
+let NODE_ROW  = {};       // nodeId -> rowId  (on-screen row members only)
+let COUNTS = { desc: {}, anc: {}, colDeg: {} };
+let YEAR_MIN = 0, YEAR_MAX = 1;
+let yearScale = null, GANTT_X = 0;
+let MATRIX_RIGHT = 0, GRID_TOP = 0, GRID_BOTTOM = 0;   // geometry shared with hover bands
+
+let state = {
+  rowSort: "chrono",
+  colSort: "chrono",
+  rowSortDir: "asc",
+  colSortDir: "asc",
+  rowOrder: [],
+  colOrder: [],
+  focusRow: null,
+  focusCol: null,
+  mono: false,
+  group: true            // "Group by strand" — default on
+};
+
+const svg = d3.select("#chart");
+const tooltip = d3.select("#tooltip");
+
+// An off-screen ancestor — imported from an earlier period, or an ur-ancestor
+// — renders as a column only: never a matrix row, never a lifespan bar.
+function isOffscreen(t) { return t.external || t.ur; }
+
+function themeById(id) { return THEMES.find(t => t.id === id); }
+function rowUnitById(id) { return ROW_BY_ID[id] || null; }
+
+// =====================================================================
+// ROW UNITS — group on-screen themes into chart rows. With grouping on,
+// themes carrying a `strand` collapse onto one row per strand; everything
+// else (and the whole dataset when grouping is off) is one row per node.
+// =====================================================================
+function buildRowUnits() {
+  const rowThemes = THEMES.filter(t => !isOffscreen(t));
+  const units = [];
+  if (state.group) {
+    const byStrand = {};
+    rowThemes.forEach(t => {
+      const sid = t.strand;
+      if (sid && STRANDS[sid]) {
+        let u = byStrand[sid];
+        if (!u) {
+          u = { rowId: sid, isStrand: true, cluster: t.cluster, members: [] };
+          byStrand[sid] = u;
+          units.push(u);
+        }
+        u.members.push(t);
+      } else {
+        units.push({ rowId: t.id, isStrand: false, cluster: t.cluster, members: [t] });
+      }
+    });
+  } else {
+    rowThemes.forEach(t => units.push(
+      { rowId: t.id, isStrand: false, cluster: t.cluster, members: [t] }));
+  }
+  units.forEach(u => u.members.sort(
+    (a,b) => a.start - b.start || a.id.localeCompare(b.id)));
+  return units;
+}
+
+// A strand row the registry knows to hold >=2 members — gets the strand
+// display label, and segmented rendering when >=2 members are on screen.
+function isStrandRow(u) {
+  return u.isStrand && STRANDS[u.rowId] && STRANDS[u.rowId].members.length >= 2;
+}
+function rowLabelText(u) {
+  return isStrandRow(u) ? STRANDS[u.rowId].label : u.members[0].name;
+}
+
+// Ancestor edges of a row unit: ancestorNodeId -> the strand member that
+// cites it. With grouping on, within-strand edges are suppressed.
+function rowAncestors(u) {
+  const map = new Map();
+  const strandId = (state.group && u.isStrand) ? u.rowId : null;
+  u.members.forEach(m => m.ancestors.forEach(a => {
+    if (strandId) {
+      const anc = ALL_BY_ID[a];
+      if (anc && anc.strand === strandId) return;   // within-strand — suppress
+    }
+    if (!map.has(a)) map.set(a, m);
+  }));
+  return map;
+}
+
+// Themes that appear as columns: ancestors referenced by an on-screen row.
+function computeColumnThemes() {
+  const used = new Set();
+  ROW_UNITS.forEach(u => rowAncestors(u).forEach((m, aId) => used.add(aId)));
+  return THEMES.filter(t => used.has(t.id));
+}
+
+// Per-row ancestor / descendant counts, and per-column degree.
+function computeCounts() {
+  const desc = {}, anc = {}, colDeg = {};
+  ROW_UNITS.forEach(u => { desc[u.rowId] = 0; anc[u.rowId] = 0; });
+  ROW_UNITS.forEach(u => {
+    const ancRows = new Set();
+    rowAncestors(u).forEach((m, aId) => {
+      colDeg[aId] = (colDeg[aId] || 0) + 1;
+      const r = NODE_ROW[aId];
+      if (r && r !== u.rowId) ancRows.add(r);
+    });
+    anc[u.rowId] = ancRows.size;
+    ancRows.forEach(r => { desc[r] = (desc[r] || 0) + 1; });
+  });
+  return { desc, anc, colDeg };
+}
+
+// =====================================================================
+// SORTING — one canonical ascending comparator per mode; reverse for desc.
+// =====================================================================
+function clusterOrder(c) { return CLUSTER_ORDER.indexOf(c); }
+function rowStart(u) { return u.members[0].start; }   // members sorted ascending
+
+function rowComparator(mode) {
+  if (mode === "ancestors")   return (a,b) => COUNTS.anc[a.rowId]  - COUNTS.anc[b.rowId];
+  if (mode === "descendants") return (a,b) => COUNTS.desc[a.rowId] - COUNTS.desc[b.rowId];
+  if (mode === "cluster")     return (a,b) => clusterOrder(a.cluster) - clusterOrder(b.cluster);
+  return (a,b) => rowStart(a) - rowStart(b);   // chrono
+}
+function colComparator(mode) {
+  if (mode === "degree")  return (a,b) => (COUNTS.colDeg[a.id]||0) - (COUNTS.colDeg[b.id]||0);
+  if (mode === "cluster") return (a,b) => clusterOrder(a.cluster) - clusterOrder(b.cluster);
+  return (a,b) => a.start - b.start;   // chrono
+}
+
+function sortRows(mode, dir) {
+  const list = ROW_UNITS.slice();
+  const cmp = rowComparator(mode);
+  list.sort((a,b) => cmp(a,b) || rowStart(a) - rowStart(b) || a.rowId.localeCompare(b.rowId));
+  if (dir === "desc") list.reverse();
+  return list.map(u => u.rowId);
+}
+
+function sortCols(mode, dir) {
+  const list = COL_THEMES.slice();
+  const cmp = colComparator(mode);
+  list.sort((a,b) => cmp(a,b) || a.start - b.start || a.id.localeCompare(b.id));
+  if (dir === "desc") list.reverse();
+  return list.map(t => t.id);
+}
+
+function applySort() {
+  state.rowOrder = sortRows(state.rowSort, state.rowSortDir);
+  state.colOrder = sortCols(state.colSort, state.colSortDir);
+}
+
+// Recompute row units, columns, counts and sort order for the current
+// THEMES set and grouping mode. Called on period change and toggle.
+function rebuildLayout() {
+  ROW_UNITS = buildRowUnits();
+  ROW_BY_ID = {};
+  NODE_ROW = {};
+  ROW_UNITS.forEach(u => {
+    ROW_BY_ID[u.rowId] = u;
+    u.members.forEach(m => { NODE_ROW[m.id] = u.rowId; });
+  });
+  COL_THEMES = computeColumnThemes();
+  COUNTS = computeCounts();
+  applySort();
+}
+
+// =====================================================================
+// RENDER
+// =====================================================================
+function rowY(rowId) {
+  const i = state.rowOrder.indexOf(rowId);
+  return MATRIX_Y + 15 + i * ROW_H;
+}
+function colX(themeId) {
+  const i = state.colOrder.indexOf(themeId);
+  if (i < 0) return null;
+  return MATRIX_X + COL_W / 2 + i * COL_W;
+}
+
+// Seven achromatic fill textures for monochrome lifespan bars. Each pattern
+// has a white backing rect so bars read on the page and in the export, and
+// uses userSpaceOnUse so the texture scale is constant across bar widths.
+function buildPatterns() {
+  const defs = svg.append("defs");
+  function pat(id) {
+    const p = defs.append("pattern")
+       .attr("id", id).attr("patternUnits", "userSpaceOnUse")
+       .attr("width", 6).attr("height", 6);
+    p.append("rect").attr("width", 6).attr("height", 6).attr("fill", "#fff");
+    return p;
+  }
+  pat("pat-solid").append("rect").attr("width", 6).attr("height", 6).attr("fill", "#000");
+  const diag = (p) => p.append("path")
+     .attr("d", "M-1.5,1.5 l3,-3 M0,6 l6,-6 M4.5,7.5 l3,-3")
+     .attr("stroke", "#000").attr("stroke-width", 1).attr("fill", "none");
+  const anti = (p) => p.append("path")
+     .attr("d", "M-1.5,4.5 l3,3 M0,0 l6,6 M4.5,-1.5 l3,3")
+     .attr("stroke", "#000").attr("stroke-width", 1).attr("fill", "none");
+  diag(pat("pat-diag"));
+  anti(pat("pat-anti"));
+  const cross = pat("pat-cross"); diag(cross); anti(cross);
+  pat("pat-dots").append("circle").attr("cx", 3).attr("cy", 3).attr("r", 1.3).attr("fill", "#000");
+  pat("pat-horiz").append("line").attr("x1", 0).attr("y1", 3).attr("x2", 6).attr("y2", 3)
+     .attr("stroke", "#000").attr("stroke-width", 1.4);
+  pat("pat-vert").append("line").attr("x1", 3).attr("y1", 0).attr("x2", 3).attr("y2", 6)
+     .attr("stroke", "#000").attr("stroke-width", 1.4);
+}
+
+// Draw the ancestry connector for one row as a series of segments, each
+// fading from the left dot's cluster colour to the right dot's. Hue is
+// interpolated in HSL (angular for hue, linear for sat/lightness — d3 takes
+// the shortest path around the wheel), sampled at 5 stops along each segment
+// so SVG's linear-RGB stop interpolation tracks the HSL path closely.
+// Called from render() and again from relayout(), since both the segment
+// partition and the per-segment endpoint colours change with column order.
+// The container `gConn` is a per-row sub-group whose DOM position keeps the
+// connector below the dots regardless of when it's refilled.
+function drawConnectors(gConn, u, rid) {
+  gConn.selectAll("*").remove();
+  const pts = [];
+  rowAncestors(u).forEach((_m, aId) => {
+    const x = colX(aId);
+    if (x !== null) pts.push({ x, aId });
+  });
+  if (pts.length < 2) return;
+  pts.sort((a, b) => a.x - b.x);
+
+  const defs = gConn.append("defs");
+  const STOPS = [0, 0.25, 0.5, 0.75, 1];
+
+  for (let i = 0; i < pts.length - 1; i++) {
+    const left = pts[i], right = pts[i + 1];
+    let stroke;
+    if (state.mono) {
+      stroke = "#000";
+    } else {
+      const cL = clusterMeta(themeById(left.aId).cluster).color;
+      const cR = clusterMeta(themeById(right.aId).cluster).color;
+      if (cL === cR) {
+        stroke = cL;
+      } else {
+        const gradId = `connGrad-${rid}-${i}`;
+        const interp = d3.interpolateHsl(cL, cR);
+        const grad = defs.append("linearGradient")
+           .attr("id", gradId)
+           .attr("gradientUnits", "userSpaceOnUse")
+           .attr("x1", left.x).attr("y1", 0)
+           .attr("x2", right.x).attr("y2", 0);
+        STOPS.forEach(t => {
+          grad.append("stop")
+             .attr("offset", `${t * 100}%`)
+             .attr("stop-color", interp(t));
+        });
+        stroke = `url(#${gradId})`;
+      }
+    }
+    gConn.append("line")
+       .attr("class", "connector conn-" + rid)
+       .attr("x1", left.x).attr("x2", right.x)
+       .attr("y1", 0).attr("y2", 0)
+       .attr("stroke", stroke)
+       .attr("opacity", BASE.connector);
+  }
+}
+
+// A thin, faint, cluster-coloured arrow drawn at the row's vertical centre —
+// the shared primitive for continuation, future-descendant and past-ancestor
+// arrows on segmented strand rows. Always points rightward.
+function strandArrow(g, x1, x2, color, rid) {
+  if (x2 <= x1 + 2) return;
+  // Bar runs y = -8 … +4, so its vertical centre is y = -2.
+  const ay = -2;
+  g.append("line")
+     .attr("class", `lifespan strand-arrow bar-${rid}`)
+     .attr("x1", x1).attr("y1", ay).attr("x2", x2 - 4).attr("y2", ay)
+     .attr("stroke", color).attr("stroke-width", 1).attr("opacity", BASE.lifespan);
+  g.append("path")
+     .attr("class", `lifespan strand-arrow bar-${rid}`)
+     .attr("d", `M${x2},${ay} L${x2-5},${ay-3} L${x2-5},${ay+3} Z`)
+     .attr("fill", color).attr("opacity", BASE.lifespan);
+}
+
+// Full build — runs only on period change, mono toggle, or group toggle.
+// Per-row and per-column movable elements are wrapped in <g> groups so
+// sorting can transition them instead of tearing the SVG down.
+function render() {
+  svg.selectAll("*").remove();
+
+  // ---- pattern defs for monochrome bars (re-created each render, since the
+  //      svg is wiped above; referenced only when state.mono) ----
+  buildPatterns();
+
+  // ---- row height: taller only when a multi-member strand is on screen ----
+  const hasMultiStrand = state.group && ROW_UNITS.some(
+    u => isStrandRow(u) && u.members.length >= 2);
+  ROW_H = hasMultiStrand ? ROW_H_TALL : ROW_H_BASE;
+
+  // ---- dynamic layout (constant across sorts within a period) ----
+  // Compact the columns when there are many: keep MAX_COL_W until the matrix
+  // would exceed COL_W_BUDGET, then shrink evenly down to MIN_COL_W.
+  const nCols = state.colOrder.length;
+  COL_W = nCols
+    ? Math.max(MIN_COL_W, Math.min(MAX_COL_W, Math.round(COL_W_BUDGET / nCols)))
+    : MAX_COL_W;
+  GANTT_X = MATRIX_X + state.colOrder.length * COL_W + GANTT_GAP;
+  const W = GANTT_X + GANTT_W + 40;
+  MATRIX_RIGHT = MATRIX_X + state.colOrder.length * COL_W;
+  const MATRIX_BOTTOM = MATRIX_Y + state.rowOrder.length * ROW_H;
+  const H = MATRIX_BOTTOM + 40;
+  svg.attr("width", W).attr("height", H);
+
+  const ymin = YEAR_MIN, ymax = (YEAR_MAX > YEAR_MIN) ? YEAR_MAX : YEAR_MIN + 1;
+  yearScale = d3.scaleLinear().domain([ymin, ymax]).range([GANTT_X, GANTT_X + GANTT_W]);
+
+  // Grid y-extent is invariant under row sort (row count is fixed).
+  GRID_TOP    = MATRIX_Y + 15;
+  GRID_BOTTOM = MATRIX_Y + 15 + Math.max(state.rowOrder.length - 1, 0) * ROW_H;
+  // Both rulers — the Gantt time axis and the matrix mirror axis — sit just
+  // above the matrix/timeline, so the axis reads as part of the chart body.
+  const AXIS_Y = GRID_TOP - 14;
+
+  // ================= STATIC LAYER =================
+  const gStatic = svg.append("g").attr("class", "static-layer");
+
+  gStatic.append("text").attr("x", MATRIX_X).attr("y", 40).attr("class", "panel-title").text("ANCESTRY");
+  gStatic.append("text").attr("x", GANTT_X).attr("y", 40).attr("class", "panel-title").text("LIFESPAN");
+
+  // -------- Gantt time axis — a tick every year, just above the bars --------
+  const span = ymax - ymin;
+  const labelStep = span <= 20 ? 1 : 5;
+  const axisStroke = state.mono ? "#000" : "#888";
+  gStatic.append("line").attr("x1", GANTT_X).attr("y1", AXIS_Y).attr("x2", GANTT_X + GANTT_W).attr("y2", AXIS_Y)
+     .attr("stroke", axisStroke).attr("stroke-width", 0.5);
+  for (let y = ymin; y <= ymax; y++) {
+    const x = yearScale(y);
+    const labelled = (y % labelStep === 0);
+    gStatic.append("line").attr("x1", x).attr("y1", labelled ? AXIS_Y - 4 : AXIS_Y - 2)
+       .attr("x2", x).attr("y2", AXIS_Y + 4).attr("stroke", axisStroke);
+    if (labelled) {
+      gStatic.append("text").attr("x", x).attr("y", AXIS_Y - 8).attr("class","axis-label")
+         .attr("text-anchor","middle").text(y);
+    }
+  }
+
+  // -------- Matrix mirror axis — faint ruler with a tick per column, set
+  //          between the column labels and the matrix to echo the time axis.
+  gStatic.append("line").attr("x1", MATRIX_X).attr("y1", AXIS_Y)
+     .attr("x2", MATRIX_RIGHT).attr("y2", AXIS_Y)
+     .attr("stroke","#bbb").attr("stroke-width", 0.5);
+  for (let i = 0; i < state.colOrder.length; i++) {
+    const x = MATRIX_X + COL_W / 2 + i * COL_W;
+    gStatic.append("line").attr("x1", x).attr("y1", AXIS_Y - 2)
+       .attr("x2", x).attr("y2", AXIS_Y + 4).attr("stroke","#bbb");
+  }
+
+  // -------- Year grid in the lifespan panel (static y-extent) --------
+  for (let y = ymin; y <= ymax; y++) {
+    const x = yearScale(y);
+    gStatic.append("line").attr("x1", x).attr("y1", GRID_TOP).attr("x2", x).attr("y2", GRID_BOTTOM).attr("class","year-tick");
+  }
+  // Decade rules, where they fall inside the range.
+  for (let y = Math.ceil(ymin / 10) * 10; y <= ymax; y += 10) {
+    gStatic.append("line").attr("x1", yearScale(y)).attr("y1", GRID_TOP)
+       .attr("x2", yearScale(y)).attr("y2", GRID_BOTTOM).attr("class","period-rule");
+  }
+
+  // -------- Divider --------
+  gStatic.append("line").attr("x1", GANTT_X - 22).attr("y1", 54)
+     .attr("x2", GANTT_X - 22).attr("y2", MATRIX_BOTTOM + 5).attr("class","divider");
+
+  // -------- Cluster legend — Gantt upper-right, just below the panel title;
+  //          all seven clusters, wrapping to a second row.
+  const LEG_DOT_R = 5.5, LEG_GAP = 8, LEG_PAD = 22;
+  const LEG_ROW0 = 60, LEG_ROW_H = 18;
+  const LEG_SWATCH = 11;   // mono pattern swatch, drawn after the shape
+  let lx = GANTT_X, lrow = 0;
+  CLUSTER_ORDER.forEach(key => {
+    const label = CLUSTERS[key].label;
+    const txt = gStatic.append("text").attr("class","legend-text").text(label);
+    const tw = txt.node().getComputedTextLength();
+    // mono entries carry a shape key plus a patterned swatch, so they are
+    // wider than the colour-mode coloured dot — widen entryW accordingly.
+    const keyW = state.mono ? LEG_DOT_R * 2 + 4 + LEG_SWATCH : LEG_DOT_R * 2;
+    const entryW = keyW + LEG_GAP + tw;
+    if (lx > GANTT_X && lx + entryW > GANTT_X + GANTT_W) { lx = GANTT_X; lrow = 1; }
+    const ly = LEG_ROW0 + lrow * LEG_ROW_H;
+    txt.attr("x", lx + keyW + LEG_GAP).attr("y", ly);
+    if (state.mono) {
+      gStatic.append("path")
+         .attr("d", d3.symbol().type(monoSymbol(key)).size(DOT_AREA)())
+         .attr("transform", `translate(${lx + LEG_DOT_R},${ly - 4})`)
+         .attr("fill", "#000");
+      gStatic.append("rect")
+         .attr("x", lx + LEG_DOT_R * 2 + 4).attr("y", ly - 4 - LEG_SWATCH / 2)
+         .attr("width", LEG_SWATCH).attr("height", LEG_SWATCH)
+         .attr("fill", `url(#${monoPattern(key)})`)
+         .attr("stroke", "#999").attr("stroke-width", 0.5);
+    } else {
+      gStatic.append("circle").attr("cx", lx + LEG_DOT_R).attr("cy", ly - 4)
+         .attr("r", LEG_DOT_R).attr("fill", CLUSTERS[key].color);
+    }
+    lx += entryW + LEG_PAD;
+  });
+
+  // ---- hover bands: faint row/column highlight, repositioned on hover.
+  //      Drawn above the static layer but below dots/labels, so they tint
+  //      the background without obscuring marks. ----
+  const gBands = svg.append("g").attr("class", "bands-layer");
+  gBands.append("rect").attr("class", "hover-band").attr("id", "rowBand").style("display", "none");
+  gBands.append("rect").attr("class", "hover-band").attr("id", "colBand").style("display", "none");
+
+  // ================= COLUMN GROUPS (movable in x) =================
+  const gCols = svg.append("g").attr("class", "cols-layer");
+  state.colOrder.forEach(id => {
+    const t = themeById(id);
+    const cm = clusterMeta(t.cluster);
+    const g = gCols.append("g")
+       .attr("class", "col-g colG-" + id)
+       .attr("transform", `translate(${colX(id)},0)`);
+    // vertical grid line (x relative to group)
+    g.append("line").attr("x1", 0).attr("x2", 0)
+       .attr("y1", GRID_TOP).attr("y2", GRID_BOTTOM).attr("class","grid-line");
+    // vertical column label — anchored at the column's bottom-centre, just
+    // above the matrix, reading bottom-to-top. Pivot is group-relative, so
+    // the label rides along when the column slides on a sort change.
+    const colLabY = AXIS_Y - 6;
+    g.append("text")
+       .attr("class","col-label colLab-" + id + (isOffscreen(t) ? " offscreen" : ""))
+       .attr("x", 0).attr("y", colLabY)
+       .attr("text-anchor","start")
+       .attr("dominant-baseline","central")
+       .attr("transform", `rotate(-90 0,${colLabY})`)
+       .attr("fill", isOffscreen(t) ? OFFSCREEN_GREY : (state.mono ? "#000" : cm.color))
+       .attr("opacity", BASE.label)
+       .style("cursor","pointer")
+       .text(t.shortName || t.name)
+       .on("click", () => onColClick(id))
+       .on("mouseover", () => previewCol(id, true))
+       .on("mouseout", () => previewCol(id, false));
+  });
+
+  // ================= ROW GROUPS (movable in y) =================
+  const gRows = svg.append("g").attr("class", "rows-layer");
+  const segLeft  = m => yearScale(Math.max(m.start, ymin));
+  const segRight = m => yearScale(Math.min(m.end + 1, ymax));
+
+  state.rowOrder.forEach(rid => {
+    const u = rowUnitById(rid);
+    if (!u) return;
+    const cm = clusterMeta(u.cluster);
+    const g = gRows.append("g")
+       .attr("class", "row-g rowG-" + rid)
+       .attr("transform", `translate(0,${rowY(rid)})`);
+
+    // monochrome: bars take a per-cluster pattern fill; arrows, connectors
+    // and labels go solid black. colour mode keeps the cluster hue.
+    const barFill   = state.mono ? `url(#${monoPattern(u.cluster)})` : cm.color;
+    const markBlack = state.mono ? "#000" : cm.color;
+
+    // horizontal grid line (y relative to group)
+    g.append("line").attr("x1", MATRIX_X).attr("x2", MATRIX_RIGHT)
+       .attr("y1", 0).attr("y2", 0).attr("class","grid-line");
+
+    const segs = u.members;                                  // sorted by start
+    const multiSeg = state.group && u.isStrand && segs.length >= 2;
+
+    // On a segmented strand row, inset each segment by half a gap on each
+    // side so adjacent segments read as distinct bars and the continuation
+    // arrow has room to show through. Single-segment rows are untouched.
+    const SEG_GAP = 4;
+    const segL = m => segLeft(m)  + (multiSeg ? SEG_GAP / 2 : 0);
+    const segR = m => segRight(m) - (multiSeg ? SEG_GAP / 2 : 0);
+
+    // ---- lifespan: one segment per (visible) member ----
+    segs.forEach(m => {
+      const x0 = segL(m), x1 = segR(m);
+      const bar = g.append("rect")
+         .attr("class", `lifespan bar-${rid} seg-${m.id}`)
+         .attr("x", x0).attr("y", -8)
+         .attr("width", Math.max(x1 - x0, 3)).attr("height", 12)
+         .attr("fill", barFill)
+         .attr("opacity", BASE.lifespan)
+         .on("click", () => onRowClick(rid));
+      if (multiSeg) {
+        bar.on("mouseover", (e) => { previewRow(rid, true); showSegTip(e, m); })
+           .on("mousemove", (e) => moveTip(e))
+           .on("mouseout", () => { previewRow(rid, false); hideTip(); });
+      } else {
+        bar.on("mouseover", () => previewRow(rid, true))
+           .on("mouseout", () => previewRow(rid, false));
+      }
+      // per-segment clamp arrows — only for plain (non-segmented) rows,
+      // exactly as today; segmented strand rows use the strand arrows below.
+      if (!multiSeg) {
+        if (m.end > ymax) {
+          g.append("path").attr("class", `lifespan bar-${rid}`)
+             .attr("d", `M${x1},-8 L${x1+8},-2 L${x1},4 Z`)
+             .attr("fill", markBlack).attr("opacity", BASE.lifespan)
+             .on("click", () => onRowClick(rid))
+             .on("mouseover", () => previewRow(rid, true))
+             .on("mouseout", () => previewRow(rid, false));
+        }
+        if (m.start < ymin) {
+          g.append("path").attr("class", `lifespan bar-${rid}`)
+             .attr("d", `M${x0},-8 L${x0-8},-2 L${x0},4 Z`)
+             .attr("fill", markBlack).attr("opacity", BASE.lifespan)
+             .on("click", () => onRowClick(rid))
+             .on("mouseover", () => previewRow(rid, true))
+             .on("mouseout", () => previewRow(rid, false));
+        }
+      }
+    });
+
+    // ---- segmented strand row: continuation / future arrows ----
+    if (multiSeg) {
+      // continuation arrows between consecutive segments
+      for (let i = 0; i < segs.length - 1; i++) {
+        strandArrow(g, segR(segs[i]), segL(segs[i+1]), markBlack, rid);
+      }
+      // future-descendant arrow: rightmost member has a descendant whose
+      // Start falls past the period window
+      const last = segs[segs.length - 1];
+      if (ALL_THEMES.some(t => t.ancestors.includes(last.id) && t.start > ymax)) {
+        strandArrow(g, segR(last), GANTT_X + GANTT_W, markBlack, rid);
+      }
+      // short-name labels, alternating above (even i) and below (odd i) so
+      // close-together segments don't overwrite each other.
+      segs.forEach((m, i) => {
+        const labelY = (i % 2 === 0) ? -13 : 17;
+        g.append("text")
+           .attr("class", `row-label rowLab-${rid}`)
+           .attr("x", (segL(m) + segR(m)) / 2).attr("y", labelY)
+           .attr("text-anchor", "middle")
+           .style("font-size", "9px")
+           .attr("fill", markBlack)
+           .attr("opacity", BASE.label)
+           .text(m.shortName || m.name)
+           .on("click", () => onRowClick(rid))
+           .on("mouseover", (e) => { previewRow(rid, true); showSegTip(e, m); })
+           .on("mousemove", (e) => moveTip(e))
+           .on("mouseout", () => { previewRow(rid, false); hideTip(); });
+      });
+    }
+
+    // ---- connector + ancestry dots ----
+    const ancMap = rowAncestors(u);
+    // Dedicated sub-group for the segmented connector — fills below the dots
+    // in DOM order, and is refilled wholesale by drawConnectors() on relayout.
+    const gConn = g.append("g").attr("class", "connectors-" + rid);
+    drawConnectors(gConn, u, rid);
+    // dots — both modes position via transform (cx/cy held at 0), so relayout
+    // stays mode-agnostic. colour: a hued circle. monochrome: a black
+    // d3.symbol shaped by the ancestor's cluster.
+    ancMap.forEach((m, aId) => {
+      const x = colX(aId);
+      if (x === null) return;
+      const ancestor = themeById(aId);
+      let dot;
+      if (state.mono) {
+        dot = g.append("path")
+           .attr("d", d3.symbol().type(monoSymbol(ancestor.cluster)).size(DOT_AREA)())
+           .attr("fill", "#000");
+      } else {
+        dot = g.append("circle")
+           .attr("cx", 0).attr("cy", 0).attr("r", 5.5)
+           .attr("fill", clusterMeta(ancestor.cluster).color);
+      }
+      dot.attr("class", `dot dot-row-${rid} dot-col-${aId}`)
+         .attr("transform", dotTransform(x))
+         .attr("opacity", BASE.dot)
+         .on("mouseover", (event) => { previewDot(rid, aId, true); showTip(event, m, ancestor); })
+         .on("mousemove", (event) => moveTip(event))
+         .on("mouseout", () => { previewDot(rid, aId, false); hideTip(); });
+    });
+
+    // row label (left margin)
+    g.append("text")
+       .attr("class","row-label rowLab-" + rid)
+       .attr("x", MATRIX_X - 8).attr("y", 4)
+       .attr("text-anchor","end")
+       .attr("fill", markBlack)
+       .attr("opacity", BASE.label)
+       .text(`${cm.glyph} ${rowLabelText(u)}`)
+       .on("click", () => onRowClick(rid))
+       .on("mouseover", () => previewRow(rid, true))
+       .on("mouseout", () => previewRow(rid, false));
+  });
+
+  applyEmphasis();
+}
+
+// Reposition movable elements for the current sort order, optionally animated.
+function relayout(animate) {
+  const layoutT = animate
+    ? d3.transition("layout").duration(400).ease(d3.easeCubicInOut)
+    : null;
+  const target = sel => animate ? sel.transition(layoutT) : sel;
+
+  // rows slide vertically
+  state.rowOrder.forEach(rid => {
+    target(svg.select(".rowG-" + rid)).attr("transform", `translate(0,${rowY(rid)})`);
+  });
+  // columns slide horizontally; dots in each column ride along
+  state.colOrder.forEach(id => {
+    target(svg.select(".colG-" + id)).attr("transform", `translate(${colX(id)},0)`);
+    target(svg.selectAll(".dot-col-" + id)).attr("transform", dotTransform(colX(id)));
+  });
+  // connector segments depend on column order — partition and per-segment
+  // colour both change with sort, so the whole sub-group is repainted.
+  ROW_UNITS.forEach(u => {
+    const gConn = svg.select(".connectors-" + u.rowId);
+    if (!gConn.empty()) drawConnectors(gConn, u, u.rowId);
+  });
+}
+
+// =====================================================================
+// EMPHASIS — three-tier opacity (focused / related / unrelated)
+// =====================================================================
+function emph(sel) { return sel.transition("emph").duration(150); }
+
+function applyEmphasis() {
+  svg.selectAll(".row-label, .col-label").classed("highlighted", false);
+
+  // ---- no focus: every element at its natural base ----
+  if (!state.focusRow && !state.focusCol) {
+    emph(svg.selectAll(".dot")).attr("opacity", BASE.dot);
+    emph(svg.selectAll(".connector")).attr("opacity", BASE.connector);
+    emph(svg.selectAll(".lifespan")).attr("opacity", BASE.lifespan);
+    emph(svg.selectAll(".row-label")).attr("opacity", BASE.label);
+    emph(svg.selectAll(".col-label")).attr("opacity", BASE.label);
+    return;
+  }
+
+  // ---- row focus: focused row / related ancestors / unrelated rest ----
+  if (state.focusRow) {
+    const rid = state.focusRow;
+    const u = rowUnitById(rid);
+    const ancNodes = new Set();
+    if (u) u.members.forEach(m => m.ancestors.forEach(a => ancNodes.add(a)));
+
+    emph(svg.selectAll(".dot")).attr("opacity", OP.unrelated);
+    emph(svg.selectAll(".connector")).attr("opacity", OP.unrelated);
+    emph(svg.selectAll(".lifespan")).attr("opacity", OP.unrelated);
+    emph(svg.selectAll(".row-label")).attr("opacity", OP.unrelated);
+    emph(svg.selectAll(".col-label")).attr("opacity", OP.unrelated);
+
+    emph(svg.selectAll(".dot-row-" + rid)).attr("opacity", OP.focused);
+    emph(svg.selectAll(".conn-" + rid)).attr("opacity", OP.focused);
+    emph(svg.selectAll(".bar-" + rid)).attr("opacity", OP.focused);
+    emph(svg.selectAll(".rowLab-" + rid)).attr("opacity", OP.focused);
+    svg.selectAll(".rowLab-" + rid).classed("highlighted", true);
+
+    ancNodes.forEach(a => {
+      const ar = NODE_ROW[a];
+      if (ar) {
+        emph(svg.selectAll(".bar-" + ar)).attr("opacity", OP.related);
+        emph(svg.selectAll(".rowLab-" + ar)).attr("opacity", OP.related);
+      }
+      emph(svg.select(".colLab-" + a)).attr("opacity", OP.focused);
+      svg.select(".colLab-" + a).classed("highlighted", true);
+    });
+    return;
+  }
+
+  // ---- column focus: focused column + descendants / unrelated rest ----
+  if (state.focusCol) {
+    const id = state.focusCol;                       // a column node id
+    const descRows = new Set();
+    THEMES.forEach(x => {
+      if (x.ancestors.includes(id) && NODE_ROW[x.id]) descRows.add(NODE_ROW[x.id]);
+    });
+
+    emph(svg.selectAll(".dot")).attr("opacity", OP.unrelated);
+    emph(svg.selectAll(".connector")).attr("opacity", OP.unrelated);
+    emph(svg.selectAll(".lifespan")).attr("opacity", OP.unrelated);
+    emph(svg.selectAll(".row-label")).attr("opacity", OP.unrelated);
+    emph(svg.selectAll(".col-label")).attr("opacity", OP.unrelated);
+
+    emph(svg.selectAll(".dot-col-" + id)).attr("opacity", OP.focused);
+    emph(svg.select(".colLab-" + id)).attr("opacity", OP.focused);
+    svg.select(".colLab-" + id).classed("highlighted", true);
+    const ownRow = NODE_ROW[id];
+    if (ownRow) {
+      emph(svg.selectAll(".bar-" + ownRow)).attr("opacity", OP.focused);
+      emph(svg.selectAll(".rowLab-" + ownRow)).attr("opacity", OP.focused);
+    }
+
+    descRows.forEach(r => {
+      emph(svg.selectAll(".bar-" + r)).attr("opacity", OP.focused);
+      emph(svg.selectAll(".conn-" + r)).attr("opacity", OP.focused);
+      emph(svg.selectAll(".rowLab-" + r)).attr("opacity", OP.focused);
+    });
+    return;
+  }
+}
+
+// =====================================================================
+// HOVER PREVIEW — soft, linked across both panels, layered over any lock.
+// mouseout restores via applyEmphasis (re-applies the lock, or the base).
+// =====================================================================
+function hoverDim() {
+  const d = sel => sel.transition("emph").duration(120).attr("opacity", HOVER_DIM);
+  d(svg.selectAll(".dot"));
+  d(svg.selectAll(".connector"));
+  d(svg.selectAll(".lifespan"));
+  d(svg.selectAll(".row-label"));
+  d(svg.selectAll(".col-label"));
+}
+function hoverLit(sel) {
+  sel.transition("emph").duration(120).attr("opacity", 1.0);
+}
+
+// Faint band tracing a whole row (across both panels) or column (down the
+// matrix), so the eye can follow it through the lattice.
+function bandColor(id) {
+  const u = ROW_BY_ID[id];
+  let c = null;
+  if (u) c = u.cluster;
+  else { const t = themeById(id); if (t) c = t.cluster; }
+  return state.mono ? "#000" : clusterMeta(c).color;
+}
+function showRowBand(id) {
+  const c = bandColor(id);
+  d3.select("#rowBand")
+    .attr("x", MATRIX_X).attr("y", rowY(id) - ROW_H / 2)
+    .attr("width", GANTT_X + GANTT_W - MATRIX_X).attr("height", ROW_H)
+    .attr("fill", c).attr("stroke", c)
+    .style("display", null);
+}
+function showColBand(id) {
+  const x = colX(id);
+  if (x === null) return;
+  const c = bandColor(id);
+  d3.select("#colBand")
+    .attr("x", x - COL_W / 2).attr("y", GRID_TOP - 4)
+    .attr("width", COL_W).attr("height", GRID_BOTTOM - GRID_TOP + 8)
+    .attr("fill", c).attr("stroke", c)
+    .style("display", null);
+}
+function hideBands() {
+  d3.select("#rowBand").style("display", "none");
+  d3.select("#colBand").style("display", "none");
+}
+
+function previewRow(id, on) {
+  if (!on) { hideBands(); applyEmphasis(); return; }
+  hoverDim();
+  showRowBand(id);
+  hoverLit(svg.selectAll(".dot-row-" + id));
+  hoverLit(svg.selectAll(".conn-" + id));
+  hoverLit(svg.selectAll(".bar-" + id));
+  hoverLit(svg.selectAll(".rowLab-" + id));
+}
+
+function previewCol(id, on) {
+  if (!on) { hideBands(); applyEmphasis(); return; }
+  hoverDim();
+  showColBand(id);
+  hoverLit(svg.selectAll(".dot-col-" + id));
+  hoverLit(svg.select(".colLab-" + id));
+  const ownRow = NODE_ROW[id];
+  if (ownRow) hoverLit(svg.selectAll(".bar-" + ownRow));   // the ancestor's own bar
+  const rows = new Set();
+  THEMES.forEach(t => {
+    if (t.ancestors.includes(id) && NODE_ROW[t.id]) rows.add(NODE_ROW[t.id]);
+  });
+  rows.forEach(r => hoverLit(svg.selectAll(".bar-" + r)));
+}
+
+function previewDot(rowId, colId, on) {
+  if (!on) { hideBands(); applyEmphasis(); return; }
+  hoverDim();
+  showRowBand(rowId);
+  showColBand(colId);
+  // the dot ties a row and a column — linked-highlight both
+  hoverLit(svg.selectAll(".dot-row-" + rowId));
+  hoverLit(svg.selectAll(".conn-" + rowId));
+  hoverLit(svg.selectAll(".bar-" + rowId));
+  hoverLit(svg.selectAll(".rowLab-" + rowId));
+  hoverLit(svg.selectAll(".dot-col-" + colId));
+  hoverLit(svg.select(".colLab-" + colId));
+  const ownRow = NODE_ROW[colId];
+  if (ownRow) hoverLit(svg.selectAll(".bar-" + ownRow));
+}
+
+// =====================================================================
+// TOOLTIP
+// =====================================================================
+function showTip(event, descendant, ancestor) {
+  tooltip.style("display", "block")
+         .text(`${descendant.name}  ←  ${ancestor.name}`);
+  moveTip(event);
+}
+function showSegTip(event, m) {
+  const sub = m.subtitle ? "  ·  " + m.subtitle : "";
+  tooltip.style("display", "block").text(`${m.name}${sub}  [${m.id}]`);
+  moveTip(event);
+}
+function moveTip(event) {
+  tooltip.style("left", (event.pageX + 14) + "px")
+         .style("top", (event.pageY + 14) + "px");
+}
+function hideTip() { tooltip.style("display", "none"); }
+
+// =====================================================================
+// INTERACTION — click to lock focus
+// =====================================================================
+function onRowClick(id) {
+  state.focusRow = (state.focusRow === id) ? null : id;
+  if (state.focusRow) state.focusCol = null;
+  applyEmphasis();
+}
+function onColClick(id) {
+  state.focusCol = (state.focusCol === id) ? null : id;
+  if (state.focusCol) state.focusRow = null;
+  applyEmphasis();
+}
+function clearFocus() {
+  state.focusRow = null;
+  state.focusCol = null;
+  applyEmphasis();
+}
+
+// =====================================================================
+// CONTROLS
+// =====================================================================
+function caret(dir) { return dir === "asc" ? "  ▲" : "  ▼"; }
+
+function updateSortButtons() {
+  d3.selectAll(".row-sort").each(function() {
+    const active = this.dataset.sort === state.rowSort;
+    d3.select(this).classed("active", active);
+    this.textContent = this.dataset.base + (active ? caret(state.rowSortDir) : "");
+  });
+  d3.selectAll(".col-sort").each(function() {
+    const active = this.dataset.csort === state.colSort;
+    d3.select(this).classed("active", active);
+    this.textContent = this.dataset.base + (active ? caret(state.colSortDir) : "");
+  });
+}
+
+d3.selectAll(".row-sort").on("click", function() {
+  const mode = this.dataset.sort;
+  if (state.rowSort === mode) {
+    state.rowSortDir = state.rowSortDir === "asc" ? "desc" : "asc";
+  } else {
+    state.rowSort = mode;
+    state.rowSortDir = DEFAULT_DIR[mode] || "asc";
+  }
+  updateSortButtons();
+  applySort();
+  relayout(true);
+  applyEmphasis();
+});
+
+d3.selectAll(".col-sort").on("click", function() {
+  const mode = this.dataset.csort;
+  if (state.colSort === mode) {
+    state.colSortDir = state.colSortDir === "asc" ? "desc" : "asc";
+  } else {
+    state.colSort = mode;
+    state.colSortDir = DEFAULT_DIR[mode] || "asc";
+  }
+  updateSortButtons();
+  applySort();
+  relayout(true);
+  applyEmphasis();
+});
+
+d3.select("#reset").on("click", clearFocus);
+
+// Esc clears any active focus.
+d3.select(window).on("keydown", (e) => {
+  if (e.key === "Escape") clearFocus();
+});
+
+// Colour <-> monochrome. A full render() rebuilds in the active encoding;
+// focus and sort live in `state`, so both survive the toggle.
+d3.select("#mono-toggle").on("click", function() {
+  state.mono = !state.mono;
+  d3.select(this).classed("active", state.mono);
+  render();
+});
+
+// Group by strand <-> ungrouped. Row identities change, so rebuild the row
+// units and re-render. Focus is dropped since the focused row may vanish.
+d3.select("#group-toggle").on("change", function() {
+  state.group = this.checked;
+  state.focusRow = null;
+  state.focusCol = null;
+  hideTip();
+  rebuildLayout();
+  render();
+});
+
+d3.select("#export-svg").on("click", exportSVG);
+
+// =====================================================================
+// SVG EXPORT — serialise the live plot to a standalone .svg file: inline
+// stylesheet, white background, no toolbar, no external dependencies.
+// Honours whatever focus/sort/mono state is active at click time.
+// =====================================================================
+function exportSVG() {
+  const node = svg.node();
+  const W = node.getAttribute("width");
+  const H = node.getAttribute("height");
+  const SVGNS = "http://www.w3.org/2000/svg";
+
+  const clone = node.cloneNode(true);
+  clone.setAttribute("xmlns", SVGNS);
+  clone.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+  clone.setAttribute("width", W);
+  clone.setAttribute("height", H);
+  clone.setAttribute("viewBox", `0 0 ${W} ${H}`);
+
+  // drop transient hover affordances — export the plot only
+  const bands = clone.querySelector(".bands-layer");
+  if (bands) bands.remove();
+
+  // inline the stylesheet so CSS-driven strokes/fonts survive standalone.
+  // The live stylesheet's body/.controls/#tooltip rules are inert in an SVG.
+  const styleEl = document.createElementNS(SVGNS, "style");
+  const liveCSS = document.querySelector("head style").textContent;
+  styleEl.textContent = "text{font-family:Georgia,'Times New Roman',serif;}\n" + liveCSS;
+  clone.insertBefore(styleEl, clone.firstChild);
+
+  // white backing, behind the plot but above style/defs
+  const bg = document.createElementNS(SVGNS, "rect");
+  bg.setAttribute("x", 0); bg.setAttribute("y", 0);
+  bg.setAttribute("width", W); bg.setAttribute("height", H);
+  bg.setAttribute("fill", "#fff");
+  const defs = clone.querySelector("defs");
+  clone.insertBefore(bg, defs ? defs.nextSibling : styleEl.nextSibling);
+
+  const xml = new XMLSerializer().serializeToString(clone);
+  const blob = new Blob(['<?xml version="1.0" encoding="UTF-8"?>\n', xml],
+                        { type: "image/svg+xml;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `lineage-plot-${ts}.svg`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+// =====================================================================
+// DATA LOADING — the whole dataset is fetched once; switching period is a
+// pure in-memory re-filter, no further network traffic.
+// =====================================================================
+
+// Re-scope the dataset to one period. In-period nodes become matrix rows;
+// any node cited as their ancestor but not itself in-period becomes a greyed
+// off-screen column (external = true); everything else is dropped.
+function selectPeriod(period) {
+  // `external` is a per-period flag mutated on shared theme objects — clear
+  // it on every theme first, so a node that was an off-screen column last
+  // period can become a row this period.
+  ALL_THEMES.forEach(t => { t.external = false; });
+
+  if (period.key === "all") {
+    // Clip to the last kept period's end. `challenge` is the type used
+    // exclusively by future-period nodes; dropping it hides every future
+    // entry even when its Start year sits on the boundary (e.g. 2026).
+    const cutoff = PERIODS[PERIODS.length - 1].winMax;
+    const kept = ALL_THEMES.filter(t => t.type !== "challenge");
+    const spans = kept.filter(t => !t.ur);
+    THEMES = kept;
+    YEAR_MIN = d3.min(spans, t => t.start);
+    YEAR_MAX = cutoff;
+  } else {
+    const rows = ALL_THEMES.filter(t => inPeriod(t, period) && !t.ur);
+    const rowIds = new Set(rows.map(t => t.id));
+    // off-screen ancestors: cited by an in-period row, not a row themselves
+    const offIds = new Set();
+    rows.forEach(t => t.ancestors.forEach(a => { if (!rowIds.has(a)) offIds.add(a); }));
+    const offscreen = ALL_THEMES.filter(t => offIds.has(t.id));
+    offscreen.forEach(t => { t.external = true; });
+    // THEMES = rows + off-screen columns; descendants and unrelated nodes
+    // (not in either set) are simply absent.
+    THEMES = rows.concat(offscreen);
+    YEAR_MIN = period.axisMin;
+    YEAR_MAX = period.axisMax;
+  }
+
+  d3.select("#period-title").text("Ubiquitous Analytics Lineage  ·  " + period.label);
+  state.focusRow = null;
+  state.focusCol = null;
+  hideTip();
+  rebuildLayout();
+  render();
+}
+
+function showError(msg) {
+  d3.select("#error").style("display", "block").html(
+    "Could not load data: " + msg +
+    ". Browsers block <code>fetch()</code> of local files — serve this " +
+    "folder first, e.g. <code>python -m http.server</code>, then open " +
+    "<code>http://localhost:8000/lineage.html</code>."
+  );
+}
+
+async function init() {
+  // Capture each sort button's base label once, so the asc/desc caret can be
+  // appended and stripped without losing the original text.
+  d3.selectAll(".row-sort, .col-sort").each(function() {
+    this.dataset.base = this.textContent.trim();
+  });
+  updateSortButtons();
+
+  let data;
+  try {
+    data = await fetch("json/data.json").then(r => {
+      if (!r.ok) throw new Error(r.status + " " + r.statusText);
+      return r.json();
+    });
+  } catch (e) {
+    showError(e.message);
+    return;
+  }
+
+  ALL_THEMES = data.themes;
+  STRANDS = data.strands || {};
+  ALL_BY_ID = {};
+  ALL_THEMES.forEach(t => { ALL_BY_ID[t.id] = t; });
+
+  // Reflect the default grouping state onto the checkbox.
+  d3.select("#group-toggle").property("checked", state.group);
+
+  // Period selector — the seven hardcoded periods plus a trailing "All".
+  const sel = d3.select("#period-selector");
+  const entries = PERIODS.concat([ALL_PERIOD]);
+  entries.forEach((p, i) => {
+    sel.append("button")
+       .attr("class", "period-btn" + (i === 0 ? " active" : ""))
+       .text(p.label)
+       .on("click", function() {
+         d3.selectAll(".period-btn").classed("active", false);
+         d3.select(this).classed("active", true);
+         selectPeriod(p);
+       });
+  });
+
+  selectPeriod(entries[0]);   // default view = first period (Pre-2000)
+}
+
+init();
+</script>
+
+</body>
+</html>

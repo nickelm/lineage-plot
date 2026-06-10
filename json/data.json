@@ -1,0 +1,2152 @@
+{
+  "label": "src",
+  "yearMin": 1986,
+  "yearMax": 2036,
+  "themes": [
+    {
+      "id": "SANDBOX",
+      "name": "The Sandbox for Analysis",
+      "shortName": "Sandbox for Analysis",
+      "cluster": "cognition",
+      "type": "foundation",
+      "subtitle": "Wright et al. 2006",
+      "start": 2006,
+      "end": 2006,
+      "ancestors": [
+        "SENSEMAKING",
+        "EXT_COG_SCAIFE"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "space_to_think"
+    },
+    {
+      "id": "SENSEMAKING",
+      "name": "Sensemaking Loop",
+      "shortName": "Sensemaking Loop",
+      "cluster": "cognition",
+      "type": "foundation",
+      "subtitle": "Pirolli & Card 2005",
+      "start": 2005,
+      "end": 2005,
+      "ancestors": [
+        "COST_STRUCTURE",
+        "INFO_FORAGING"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "sensemaking"
+    },
+    {
+      "id": "COST_STRUCTURE",
+      "name": "Cost Structure of Sensemaking",
+      "shortName": "Cost Structure",
+      "cluster": "cognition",
+      "type": "foundation",
+      "subtitle": "Russell et al. 1993",
+      "start": 1993,
+      "end": 1993,
+      "ancestors": [],
+      "external": false,
+      "ur": false,
+      "strand": "sensemaking"
+    },
+    {
+      "id": "VIS_ANALYTICS",
+      "name": "Visual Analytics",
+      "shortName": "Visual Analytics",
+      "cluster": "visualization",
+      "type": "foundation",
+      "subtitle": "Thomas & Cook 2005; Keim et al. 2008",
+      "start": 2005,
+      "end": 2008,
+      "ancestors": [
+        "VIS_PIPELINE",
+        "SENSEMAKING"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "INTERACT_INTENTS",
+      "name": "Interaction Intents",
+      "shortName": "Interaction Intents",
+      "cluster": "interaction",
+      "type": "foundation",
+      "subtitle": "Yi et al. 2007",
+      "start": 2007,
+      "end": 2007,
+      "ancestors": [
+        "DIRECT_MANIP",
+        "GULFS",
+        "INFO_MANTRA"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "science_of_interaction"
+    },
+    {
+      "id": "SCI_INTERACTION",
+      "name": "Science of Interaction",
+      "shortName": "Science of Interaction",
+      "cluster": "interaction",
+      "type": "foundation",
+      "subtitle": "Pike et al. 2009",
+      "start": 2009,
+      "end": 2009,
+      "ancestors": [
+        "VIS_ANALYTICS",
+        "INTERACT_INTENTS"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "science_of_interaction"
+    },
+    {
+      "id": "VIS_GRAMMAR_WILKINSON",
+      "name": "Grammar of Graphics",
+      "shortName": "Grammar of Graphics",
+      "cluster": "visualization",
+      "type": "foundation",
+      "subtitle": "Wilkinson 2005",
+      "start": 2005,
+      "end": 2005,
+      "ancestors": [
+        "VISUAL_VAR",
+        "VIS_PIPELINE",
+        "APT",
+        "SCALES"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "vis_grammars"
+    },
+    {
+      "id": "D3",
+      "name": "D3 (Data-Driven Documents)",
+      "shortName": "D3",
+      "cluster": "visualization",
+      "type": "foundation",
+      "subtitle": "Bostock, Ogievetsky & Heer 2011",
+      "start": 2011,
+      "end": 2011,
+      "ancestors": [
+        "VIS_GRAMMAR_WILKINSON"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "VIS_GRAMMAR_VEGA",
+      "name": "Vega-Lite",
+      "shortName": "Vega-Lite",
+      "cluster": "visualization",
+      "type": "foundation",
+      "subtitle": "Satyanarayan et al. 2017",
+      "start": 2017,
+      "end": 2017,
+      "ancestors": [
+        "VIS_GRAMMAR_WILKINSON",
+        "D3"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "vis_grammars"
+    },
+    {
+      "id": "THREE_GULFS",
+      "name": "Three Gulfs",
+      "shortName": "Three Gulfs",
+      "cluster": "interaction",
+      "type": "foundation",
+      "subtitle": "Lam 2008",
+      "start": 2008,
+      "end": 2008,
+      "ancestors": [
+        "GULFS"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "gulfs"
+    },
+    {
+      "id": "DCOG_INFOVIS",
+      "name": "DCog for Information Visualization",
+      "shortName": "DCog for Vis",
+      "cluster": "cognition",
+      "type": "foundation",
+      "subtitle": "Liu, Nersessian & Stasko 2008",
+      "start": 2008,
+      "end": 2008,
+      "ancestors": [
+        "DCOG",
+        "DCOG_HCI",
+        "VIS_PIPELINE"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "distributed_cognition"
+    },
+    {
+      "id": "SPACE_TO_THINK",
+      "name": "Space to Think",
+      "shortName": "Space to Think",
+      "cluster": "cognition",
+      "type": "foundation",
+      "subtitle": "Andrews et al. 2010",
+      "start": 2010,
+      "end": 2010,
+      "ancestors": [
+        "SANDBOX",
+        "EXT_COG_SCAIFE",
+        "DCOG_INFOVIS"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "space_to_think"
+    },
+    {
+      "id": "IRVE",
+      "name": "Information-Rich Virtual Environments",
+      "shortName": "IRVE",
+      "cluster": "visualization",
+      "type": "foundation",
+      "subtitle": "Bowman et al. 2003",
+      "start": 2003,
+      "end": 2003,
+      "ancestors": [
+        "AR_SURVEY",
+        "RV_CONTINUUM"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "PROXEMICS_HCI",
+      "name": "Proxemic Interactions",
+      "shortName": "Proxemics for HCI",
+      "cluster": "interaction",
+      "type": "foundation",
+      "subtitle": "Greenberg et al. 2011",
+      "start": 2011,
+      "end": 2011,
+      "ancestors": [
+        "PROXEMICS",
+        "UBICOMP"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "UA",
+      "name": "Ubiquitous Analytics",
+      "shortName": "Ubiquitous Analytics",
+      "cluster": "cognition",
+      "type": "foundation",
+      "subtitle": "Elmqvist & Irani 2013",
+      "start": 2013,
+      "end": 2013,
+      "ancestors": [
+        "UBICOMP",
+        "VIS_ANALYTICS",
+        "ACT_KAPTELININ"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "MUNIN",
+      "name": "Munin",
+      "shortName": "Munin",
+      "cluster": "platforms",
+      "type": "contribution",
+      "subtitle": "Badam, Fisher & Elmqvist 2015",
+      "start": 2015,
+      "end": 2015,
+      "ancestors": [
+        "UA",
+        "UBICOMP"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "VISTRATES",
+      "name": "Vistrates",
+      "shortName": "Vistrates",
+      "cluster": "platforms",
+      "type": "contribution",
+      "subtitle": "Badam, Mathisen, Rädle, Klokmose & Elmqvist 2019",
+      "start": 2019,
+      "end": 2019,
+      "ancestors": [
+        "UA",
+        "MUNIN"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "IA",
+      "name": "Immersive Analytics",
+      "shortName": "Immersive Analytics",
+      "cluster": "visualization",
+      "type": "foundation",
+      "subtitle": "Chandler et al. 2015; Marriott et al. 2018",
+      "start": 2015,
+      "end": 2018,
+      "ancestors": [
+        "UA",
+        "DIRECT_MANIP",
+        "GORILLA_ARM",
+        "AR_SURVEY",
+        "IRVE"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "EMBEDDED_DATA",
+      "name": "Embedded Data Representations",
+      "shortName": "Embedded Data Repr.",
+      "cluster": "context",
+      "type": "foundation",
+      "subtitle": "Willett et al. 2017",
+      "start": 2017,
+      "end": 2017,
+      "ancestors": [
+        "UA",
+        "UBICOMP",
+        "AR_SURVEY",
+        "EMBODIED_INT"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "situated_analytics"
+    },
+    {
+      "id": "SA_SITUATED",
+      "name": "Situated Analytics",
+      "shortName": "Situated Analytics",
+      "cluster": "context",
+      "type": "foundation",
+      "subtitle": "Thomas et al. 2018",
+      "start": 2018,
+      "end": 2018,
+      "ancestors": [
+        "EMBEDDED_DATA"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "situated_analytics"
+    },
+    {
+      "id": "SA_BRESSA",
+      "name": "Situated Visualization Survey",
+      "shortName": "Situated Vis Survey",
+      "cluster": "context",
+      "type": "foundation",
+      "subtitle": "Bressa et al. 2022",
+      "start": 2022,
+      "end": 2022,
+      "ancestors": [
+        "SA_SITUATED"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "situated_analytics"
+    },
+    {
+      "id": "IA_GRAND",
+      "name": "IA Grand Challenges",
+      "shortName": "IA Grand Challenges",
+      "cluster": "evaluation",
+      "type": "foundation",
+      "subtitle": "Ens et al. CHI 2021",
+      "start": 2021,
+      "end": 2021,
+      "ancestors": [
+        "IA"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "IST",
+      "name": "Immersive Space to Think",
+      "shortName": "Immersive Space to Think",
+      "cluster": "cognition",
+      "type": "foundation",
+      "subtitle": "Lisle et al. 2021, 2023",
+      "start": 2021,
+      "end": 2023,
+      "ancestors": [
+        "SPACE_TO_THINK",
+        "IA"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "space_to_think"
+    },
+    {
+      "id": "GORILLA_ARM",
+      "name": "Gorilla Arm / Gesture Fatigue",
+      "shortName": "Gorilla Arm",
+      "cluster": "interaction",
+      "type": "foundation",
+      "subtitle": "Hincapié-Ramos et al. 2014",
+      "start": 2014,
+      "end": 2014,
+      "ancestors": [
+        "DIRECT_MANIP"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "QU_HARRISON",
+      "name": "Achieving Ubiquity",
+      "shortName": "Achieving Ubiquity",
+      "cluster": "platforms",
+      "type": "foundation",
+      "subtitle": "Harrison et al. 2010",
+      "start": 2010,
+      "end": 2010,
+      "ancestors": [
+        "UA",
+        "CALM_TECH"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "ubicomp"
+    },
+    {
+      "id": "QU_DOURISH",
+      "name": "Divining a Digital Future",
+      "shortName": "Divining a Digital Future",
+      "cluster": "platforms",
+      "type": "foundation",
+      "subtitle": "Dourish & Bell 2011",
+      "start": 2011,
+      "end": 2011,
+      "ancestors": [
+        "QU_HARRISON"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "ubicomp"
+    },
+    {
+      "id": "IMAXES",
+      "name": "ImAxes",
+      "shortName": "ImAxes",
+      "cluster": "visualization",
+      "type": "foundation",
+      "subtitle": "Cordeil et al. 2017",
+      "start": 2017,
+      "end": 2017,
+      "ancestors": [
+        "IA",
+        "DIRECT_MANIP",
+        "EMBODIED_INT"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "UNITY",
+      "name": "Unity Game Engine",
+      "shortName": "Unity Engine",
+      "cluster": "platforms",
+      "type": "platform",
+      "subtitle": "Unity Technologies; XR-dominant 2016–",
+      "start": 2016,
+      "end": 2026,
+      "ancestors": [],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "DXR",
+      "name": "DXR",
+      "shortName": "DXR",
+      "cluster": "visualization",
+      "type": "foundation",
+      "subtitle": "Sicat et al. 2019",
+      "start": 2019,
+      "end": 2019,
+      "ancestors": [
+        "IA",
+        "VIS_GRAMMAR_VEGA",
+        "UNITY"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "IATK",
+      "name": "IATK",
+      "shortName": "IATK",
+      "cluster": "visualization",
+      "type": "foundation",
+      "subtitle": "Cordeil et al. 2019",
+      "start": 2019,
+      "end": 2019,
+      "ancestors": [
+        "IMAXES",
+        "IA",
+        "UNITY"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "VRIA",
+      "name": "VRIA",
+      "shortName": "VRIA",
+      "cluster": "visualization",
+      "type": "foundation",
+      "subtitle": "Butcher, John & Ritsos 2021",
+      "start": 2021,
+      "end": 2021,
+      "ancestors": [
+        "IA",
+        "DXR",
+        "D3",
+        "VIS_GRAMMAR_VEGA",
+        "WEBXR_MATURE"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "RAGRUG",
+      "name": "RagRug",
+      "shortName": "RagRug",
+      "cluster": "visualization",
+      "type": "foundation",
+      "subtitle": "Fleck et al. 2022",
+      "start": 2022,
+      "end": 2022,
+      "ancestors": [
+        "SA_SITUATED",
+        "IA"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "NO_SPOON",
+      "name": "There Is No Spoon",
+      "shortName": "There Is No Spoon",
+      "cluster": "evaluation",
+      "type": "contribution",
+      "subtitle": "Batch et al. 2020",
+      "start": 2020,
+      "end": 2020,
+      "ancestors": [
+        "IA"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "TILT_MAP",
+      "name": "Tilt Map",
+      "shortName": "Tilt Map",
+      "cluster": "visualization",
+      "type": "foundation",
+      "subtitle": "Yang et al. 2020",
+      "start": 2020,
+      "end": 2020,
+      "ancestors": [
+        "IA",
+        "GRAPH_PERCEPT"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "IMM_COLLAB",
+      "name": "Immersive Collaborative Network Analysis",
+      "shortName": "Immersive Collab Analysis",
+      "cluster": "collaboration",
+      "type": "foundation",
+      "subtitle": "Cordeil et al. 2017",
+      "start": 2017,
+      "end": 2017,
+      "ancestors": [
+        "IA"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "PROXEMICS_INFOVIS",
+      "name": "Information Visualization and Proxemics",
+      "shortName": "Proxemics for InfoVis",
+      "cluster": "interaction",
+      "type": "foundation",
+      "subtitle": "Jakobsen et al. 2013",
+      "start": 2013,
+      "end": 2013,
+      "ancestors": [
+        "PROXEMICS_HCI",
+        "PROXEMICS"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "PROXEMIC_LENSES",
+      "name": "Proxemic Lenses on Shared Displays",
+      "shortName": "Proxemic Lenses",
+      "cluster": "collaboration",
+      "type": "contribution",
+      "subtitle": "Badam, Amini, Elmqvist & Irani 2016",
+      "start": 2016,
+      "end": 2016,
+      "ancestors": [
+        "UA",
+        "DIRECT_MANIP",
+        "GORILLA_ARM",
+        "PROXEMICS_HCI",
+        "PROXEMICS_INFOVIS"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "proxemic_collab"
+    },
+    {
+      "id": "ART",
+      "name": "ART",
+      "shortName": "ART",
+      "cluster": "visualization",
+      "type": "foundation",
+      "subtitle": "Butscher et al. 2018",
+      "start": 2018,
+      "end": 2018,
+      "ancestors": [
+        "IA",
+        "DIRECT_MANIP"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "STREAM",
+      "name": "STREAM",
+      "shortName": "STREAM",
+      "cluster": "interaction",
+      "type": "foundation",
+      "subtitle": "Hubenschmid et al. 2021",
+      "start": 2021,
+      "end": 2021,
+      "ancestors": [
+        "UA",
+        "IA",
+        "ART"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "RELIVE",
+      "name": "ReLive",
+      "shortName": "ReLive",
+      "cluster": "visualization",
+      "type": "foundation",
+      "subtitle": "Hubenschmid et al. 2022",
+      "start": 2022,
+      "end": 2022,
+      "ancestors": [
+        "IA",
+        "STREAM"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "MARVIS",
+      "name": "MARVIS",
+      "shortName": "MARVIS",
+      "cluster": "interaction",
+      "type": "foundation",
+      "subtitle": "Langner et al. 2021",
+      "start": 2021,
+      "end": 2021,
+      "ancestors": [
+        "UA",
+        "IA"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "IA_SURVEY",
+      "name": "Survey of Immersive Analytics",
+      "shortName": "IA Survey",
+      "cluster": "evaluation",
+      "type": "foundation",
+      "subtitle": "Fonnet & Prié 2021",
+      "start": 2021,
+      "end": 2021,
+      "ancestors": [
+        "IA"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "XVA_SURVEY",
+      "name": "Cross-Virtuality Analytics Survey",
+      "shortName": "XVA Survey",
+      "cluster": "collaboration",
+      "type": "foundation",
+      "subtitle": "Fröhler et al. 2022",
+      "start": 2022,
+      "end": 2022,
+      "ancestors": [
+        "IA",
+        "VIS_ANALYTICS"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "CACM",
+      "name": "Ubiquitous Analytics Vision",
+      "shortName": "UA Vision",
+      "cluster": "cognition",
+      "type": "contribution",
+      "subtitle": "Elmqvist, CACM 2023",
+      "start": 2023,
+      "end": 2023,
+      "ancestors": [
+        "UA"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "SUBSTRATES",
+      "name": "Interaction Substrates",
+      "shortName": "Substrates",
+      "cluster": "interaction",
+      "type": "foundation",
+      "subtitle": "Mackay et al. 2025",
+      "start": 2025,
+      "end": 2025,
+      "ancestors": [
+        "INSTRUMENT",
+        "DCOG"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "substrates"
+    },
+    {
+      "id": "MULTILITERACY",
+      "name": "Multiliteracy Model",
+      "shortName": "Multiliteracy Model",
+      "cluster": "visualization",
+      "type": "foundation",
+      "subtitle": "Molina León et al. CHI 2026",
+      "start": 2026,
+      "end": 2026,
+      "ancestors": [
+        "THREE_GULFS",
+        "VIS_GRAMMAR_VEGA"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "DASHSPACE",
+      "name": "DashSpace",
+      "shortName": "DashSpace",
+      "cluster": "interaction",
+      "type": "foundation",
+      "subtitle": "Borowski et al. 2025",
+      "start": 2025,
+      "end": 2025,
+      "ancestors": [
+        "SPATIALSTRATES",
+        "WEBXR_MATURE",
+        "VRIA",
+        "WIZUALIZATION",
+        "IMM_COLLAB"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "SPATIALSTRATES",
+      "name": "Spatialstrates",
+      "shortName": "Spatialstrates",
+      "cluster": "interaction",
+      "type": "foundation",
+      "subtitle": "Borowski et al. 2025",
+      "start": 2025,
+      "end": 2025,
+      "ancestors": [
+        "SUBSTRATES",
+        "WEBXR_MATURE"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "SPATIAL_OS",
+      "name": "Three Spatial Operating Systems",
+      "shortName": "Spatial OSes",
+      "cluster": "platforms",
+      "type": "platform",
+      "subtitle": "Android XR, visionOS, Meta Horizon OS (2024–2026)",
+      "start": 2024,
+      "end": 2029,
+      "ancestors": [
+        "UBICOMP"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "AI_SCENE",
+      "name": "AI Scene Understanding",
+      "shortName": "AI Scene Understanding",
+      "cluster": "context",
+      "type": "platform",
+      "subtitle": "Gemini in Android XR; Apple Intelligence; Meta AI (2025–2026)",
+      "start": 2025,
+      "end": 2029,
+      "ancestors": [],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "WEBXR_MATURE",
+      "name": "WebXR / WebGPU Maturation",
+      "shortName": "WebXR / WebGPU",
+      "cluster": "platforms",
+      "type": "platform",
+      "subtitle": "W3C WebXR Device API; WebGPU (2024–2026)",
+      "start": 2024,
+      "end": 2029,
+      "ancestors": [
+        "UBICOMP"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "NATIVE_NAIVE",
+      "name": "Is Native Naïve?",
+      "shortName": "Is Native Naïve?",
+      "cluster": "platforms",
+      "type": "foundation",
+      "subtitle": "Butcher et al. 2024",
+      "start": 2024,
+      "end": 2024,
+      "ancestors": [
+        "UNITY",
+        "IATK",
+        "VRIA"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "SA_SHIN",
+      "name": "Situated Analytics Survey",
+      "shortName": "Situated Analytics Survey",
+      "cluster": "context",
+      "type": "foundation",
+      "subtitle": "Shin et al. 2024",
+      "start": 2024,
+      "end": 2024,
+      "ancestors": [
+        "SA_BRESSA"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "situated_analytics"
+    },
+    {
+      "id": "EYES_SHOES",
+      "name": "Eyes and Shoes",
+      "shortName": "Eyes and Shoes",
+      "cluster": "collaboration",
+      "type": "foundation",
+      "subtitle": "Saffo, Batch, Dunne & Elmqvist 2023",
+      "start": 2023,
+      "end": 2023,
+      "ancestors": [
+        "IA",
+        "RELIVE"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "TABLE_WANT",
+      "name": "This is the Table I Want!",
+      "shortName": "Table I Want",
+      "cluster": "interaction",
+      "type": "foundation",
+      "subtitle": "In, Lin, North, Pfister & Yang 2023",
+      "start": 2023,
+      "end": 2023,
+      "ancestors": [
+        "IA",
+        "DIRECT_MANIP"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "VIEW_MGMT",
+      "name": "View Management for Situated Vis",
+      "shortName": "View Management",
+      "cluster": "interaction",
+      "type": "contribution",
+      "subtitle": "Batch et al. 2023",
+      "start": 2023,
+      "end": 2023,
+      "ancestors": [
+        "SA_SITUATED",
+        "WEBXR_MATURE"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "IA_DESIGN_SPACE",
+      "name": "IA Design Space Review",
+      "shortName": "IA Design Space",
+      "cluster": "evaluation",
+      "type": "foundation",
+      "subtitle": "Saffo et al. 2023",
+      "start": 2023,
+      "end": 2023,
+      "ancestors": [
+        "IA",
+        "IA_GRAND"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "SITVIS_PATTERNS",
+      "name": "Situated Vis Design Patterns",
+      "shortName": "SitVis Patterns",
+      "cluster": "context",
+      "type": "foundation",
+      "subtitle": "Lee, Sedlmair & Schmalstieg 2023",
+      "start": 2023,
+      "end": 2023,
+      "ancestors": [
+        "SA_SITUATED",
+        "EMBEDDED_DATA"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "situated_analytics"
+    },
+    {
+      "id": "WIZUALIZATION",
+      "name": "Wizualization",
+      "shortName": "Wizualization",
+      "cluster": "platforms",
+      "type": "contribution",
+      "subtitle": "Batch, Butcher, Ritsos & Elmqvist 2023",
+      "start": 2023,
+      "end": 2023,
+      "ancestors": [
+        "WEBXR_MATURE",
+        "VIS_GRAMMAR_VEGA",
+        "VIEW_MGMT",
+        "VRIA",
+        "DXR",
+        "IATK"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "ANU_JS",
+      "name": "Anu.js",
+      "shortName": "Anu.js",
+      "cluster": "platforms",
+      "type": "platform",
+      "subtitle": "Saffo et al. 2026",
+      "start": 2026,
+      "end": 2026,
+      "ancestors": [
+        "WEBXR_MATURE",
+        "VIS_GRAMMAR_VEGA",
+        "D3"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "C_FIELD_DCOG",
+      "name": "Field Studies of Distributed Analytical Cognition",
+      "shortName": "Field Studies of DCog",
+      "cluster": "cognition",
+      "type": "challenge",
+      "subtitle": "Longitudinal ethnographic work in real deployments",
+      "start": 2027,
+      "end": 2028,
+      "ancestors": [
+        "DCOG_INFOVIS"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "C_SPATIAL_MEM",
+      "name": "Spatial Memory for Analytical Data",
+      "shortName": "Spatial Memory",
+      "cluster": "cognition",
+      "type": "challenge",
+      "subtitle": "Does returning to a location help resume the analytical thread?",
+      "start": 2027,
+      "end": 2028,
+      "ancestors": [
+        "EXT_COG_SCAIFE",
+        "SPACE_TO_THINK",
+        "IST"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "C_FATIGUE",
+      "name": "Fatigue Models for Sustained Analytical Work",
+      "shortName": "Fatigue Models",
+      "cluster": "cognition",
+      "type": "challenge",
+      "subtitle": "Multi-hour sessions, not 10-minute tasks",
+      "start": 2027,
+      "end": 2028,
+      "ancestors": [
+        "GORILLA_ARM"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "C_NO_ADVANTAGE",
+      "name": "When UA Offers No Advantage",
+      "shortName": "No-Advantage Cases",
+      "cluster": "cognition",
+      "type": "challenge",
+      "subtitle": "Honest empirical answers, not assumptions",
+      "start": 2027,
+      "end": 2028,
+      "ancestors": [
+        "C_FIELD_DCOG"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "C_AI_SITUATED",
+      "name": "AI-Mediated Situated Analytics",
+      "shortName": "AI-Mediated SA",
+      "cluster": "context",
+      "type": "challenge",
+      "subtitle": "Connecting platform scene understanding to analytical reasoning",
+      "start": 2027,
+      "end": 2028,
+      "ancestors": [
+        "AI_SCENE",
+        "SA_SITUATED",
+        "RAGRUG"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "ai_partnership"
+    },
+    {
+      "id": "C_CHANNEL_ADAPT",
+      "name": "Automatic Channel Adaptation",
+      "shortName": "Channel Adaptation",
+      "cluster": "context",
+      "type": "challenge",
+      "subtitle": "Real-time channel suitability assessment",
+      "start": 2027,
+      "end": 2028,
+      "ancestors": [
+        "AI_SCENE"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "C_MULTIMODAL",
+      "name": "Multimodal Fusion Outside the Lab",
+      "shortName": "Multimodal Fusion",
+      "cluster": "interaction",
+      "type": "challenge",
+      "subtitle": "Characterize failure modes under field conditions",
+      "start": 2027,
+      "end": 2028,
+      "ancestors": [
+        "SPATIAL_OS"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "C_MICRO",
+      "name": "Micro-Interaction Design for Spatial Analytics",
+      "shortName": "Micro-Interaction Design",
+      "cluster": "interaction",
+      "type": "challenge",
+      "subtitle": "The missing right-click, undo, context menu",
+      "start": 2027,
+      "end": 2028,
+      "ancestors": [
+        "INTERACT_INTENTS",
+        "DIRECT_MANIP"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "spatial_conventions"
+    },
+    {
+      "id": "C_CHANNEL_SCALE",
+      "name": "Input Channel Characterization at Scale",
+      "shortName": "Channel Characterization",
+      "cluster": "interaction",
+      "type": "challenge",
+      "subtitle": "Cleveland & McGill for input channels",
+      "start": 2027,
+      "end": 2028,
+      "ancestors": [
+        "GRAPH_PERCEPT"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "C_TILT",
+      "name": "The Tilt Problem",
+      "shortName": "Tilt Problem",
+      "cluster": "visualization",
+      "type": "challenge",
+      "subtitle": "Optimal chart orientation relative to analyst's body and gaze",
+      "start": 2027,
+      "end": 2028,
+      "ancestors": [
+        "GRAPH_PERCEPT",
+        "SA_SITUATED",
+        "TILT_MAP"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "C_EMBED_SPATIAL",
+      "name": "Embedding vs. Spatializing (Empirical)",
+      "shortName": "Embedding vs. Spatializing",
+      "cluster": "visualization",
+      "type": "challenge",
+      "subtitle": "When does physical embedding outperform spatial void?",
+      "start": 2027,
+      "end": 2028,
+      "ancestors": [
+        "SA_SITUATED",
+        "GRAPH_PERCEPT"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "C_LEGIBILITY",
+      "name": "Legibility Under Real Conditions",
+      "shortName": "Legibility in the Field",
+      "cluster": "visualization",
+      "type": "challenge",
+      "subtitle": "Overplotting, labels, color fidelity in authentic field conditions",
+      "start": 2027,
+      "end": 2028,
+      "ancestors": [
+        "GRAPH_PERCEPT",
+        "SA_SITUATED"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "C_WEBXR_BENCH",
+      "name": "WebXR Performance Benchmarks",
+      "shortName": "WebXR Benchmarks",
+      "cluster": "platforms",
+      "type": "challenge",
+      "subtitle": "What scale of analytical data can web-based XR handle?",
+      "start": 2027,
+      "end": 2028,
+      "ancestors": [
+        "WEBXR_MATURE",
+        "DASHSPACE"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "cross_reality_platform"
+    },
+    {
+      "id": "C_TELEMETRY",
+      "name": "Instrumented Telemetry for Spatial Analytics",
+      "shortName": "Spatial Telemetry",
+      "cluster": "evaluation",
+      "type": "challenge",
+      "subtitle": "Standardized formats and analysis tools",
+      "start": 2027,
+      "end": 2028,
+      "ancestors": [
+        "SPATIAL_OS"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "eval_infrastructure"
+    },
+    {
+      "id": "C_PROXEMIC",
+      "name": "Proxemic Interaction for Shared Data",
+      "shortName": "Proxemic Interaction",
+      "cluster": "collaboration",
+      "type": "challenge",
+      "subtitle": "Body distance and orientation as implicit interaction signals",
+      "start": 2027,
+      "end": 2028,
+      "ancestors": [
+        "DCOG",
+        "IMM_COLLAB",
+        "PROXEMIC_LENSES"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "proxemic_collab"
+    },
+    {
+      "id": "C_VIS_GRAMMAR",
+      "name": "Visualization Grammars for Spatial Computing",
+      "shortName": "Spatial Vis Grammars",
+      "cluster": "visualization",
+      "type": "challenge",
+      "subtitle": "The spatial Vega-Lite",
+      "start": 2029,
+      "end": 2031,
+      "ancestors": [
+        "VIS_GRAMMAR_VEGA",
+        "C_EMBED_SPATIAL",
+        "C_LEGIBILITY",
+        "WIZUALIZATION"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "C_CROSS_REALITY",
+      "name": "Cross-Reality Architectures",
+      "shortName": "Cross-Reality Architectures",
+      "cluster": "platforms",
+      "type": "challenge",
+      "subtitle": "Single codebase spanning phone to headset to wall",
+      "start": 2029,
+      "end": 2031,
+      "ancestors": [
+        "C_WEBXR_BENCH",
+        "SPATIAL_OS"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "cross_reality_platform"
+    },
+    {
+      "id": "C_ECO_BENCH",
+      "name": "Ecological Validity Benchmarks",
+      "shortName": "Ecological Benchmarks",
+      "cluster": "evaluation",
+      "type": "challenge",
+      "subtitle": "VAST for UA",
+      "start": 2029,
+      "end": 2031,
+      "ancestors": [
+        "C_TELEMETRY",
+        "C_FIELD_DCOG"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "eval_infrastructure"
+    },
+    {
+      "id": "C_LONGITUDINAL",
+      "name": "Longitudinal Field Deployments",
+      "shortName": "Longitudinal Deployments",
+      "cluster": "evaluation",
+      "type": "challenge",
+      "subtitle": "Weeks, not minutes",
+      "start": 2029,
+      "end": 2031,
+      "ancestors": [
+        "C_TELEMETRY",
+        "C_ECO_BENCH"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "C_ASYMMETRIC",
+      "name": "Asymmetric Device Collaboration",
+      "shortName": "Asymmetric Collaboration",
+      "cluster": "collaboration",
+      "type": "challenge",
+      "subtitle": "One in AR headset, one on tablet, same analytical goal",
+      "start": 2029,
+      "end": 2031,
+      "ancestors": [
+        "C_PROXEMIC",
+        "C_CROSS_REALITY",
+        "STREAM",
+        "MARVIS",
+        "XVA_SURVEY",
+        "EYES_SHOES"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "proxemic_collab"
+    },
+    {
+      "id": "C_PLACE_MEM",
+      "name": "Place-Based Analytical Memory",
+      "shortName": "Place-Based Memory",
+      "cluster": "context",
+      "type": "challenge",
+      "subtitle": "Spatial bookmarking at room, building, and site scale",
+      "start": 2029,
+      "end": 2031,
+      "ancestors": [
+        "C_SPATIAL_MEM",
+        "C_AI_SITUATED"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "C_AGENTIC",
+      "name": "Agentic AI as Cognitive Partner",
+      "shortName": "Agentic AI Partner",
+      "cluster": "context",
+      "type": "challenge",
+      "subtitle": "The analyst's DCog loop includes a non-human agent",
+      "start": 2029,
+      "end": 2031,
+      "ancestors": [
+        "C_AI_SITUATED",
+        "C_CHANNEL_ADAPT"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "ai_partnership"
+    },
+    {
+      "id": "C_REPRO",
+      "name": "Reproducibility Infrastructure",
+      "shortName": "Reproducibility Infrastructure",
+      "cluster": "platforms",
+      "type": "challenge",
+      "subtitle": "Shared toolkits that outlive the graduating PhD student",
+      "start": 2029,
+      "end": 2031,
+      "ancestors": [
+        "C_WEBXR_BENCH",
+        "ANU_JS"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "C_VIBE",
+      "name": "Vibe Coding for Analytical Tools",
+      "shortName": "Vibe Coding",
+      "cluster": "platforms",
+      "type": "challenge",
+      "subtitle": "LLMs generate web code; what makes the result analytically sound?",
+      "start": 2029,
+      "end": 2031,
+      "ancestors": [
+        "WEBXR_MATURE",
+        "AI_SCENE"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "C_FAILURE",
+      "name": "Deployment Failure Analysis",
+      "shortName": "Failure Analysis",
+      "cluster": "evaluation",
+      "type": "challenge",
+      "subtitle": "The most valuable and least published evidence",
+      "start": 2029,
+      "end": 2031,
+      "ancestors": [
+        "C_LONGITUDINAL"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "C_REMOTE_HYBRID",
+      "name": "Remote + Co-Located Hybrids",
+      "shortName": "Remote/Co-Located Hybrids",
+      "cluster": "collaboration",
+      "type": "challenge",
+      "subtitle": "Sharing spatial context without sharing physical space",
+      "start": 2029,
+      "end": 2031,
+      "ancestors": [
+        "C_ASYMMETRIC"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "C_AUTHORING",
+      "name": "Authoring for Domain Experts",
+      "shortName": "Domain-Expert Authoring",
+      "cluster": "visualization",
+      "type": "challenge",
+      "subtitle": "Marine biologists creating their own spatial visualizations",
+      "start": 2033,
+      "end": 2035,
+      "ancestors": [
+        "C_VIS_GRAMMAR",
+        "C_CROSS_REALITY",
+        "C_REPRO",
+        "NO_SPOON"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "C_CROSS_INTERACT",
+      "name": "Cross-Reality Interaction Continuity",
+      "shortName": "Cross-Reality Continuity",
+      "cluster": "interaction",
+      "type": "challenge",
+      "subtitle": "Consistent channel vocabulary across phone, AR, VR",
+      "start": 2033,
+      "end": 2035,
+      "ancestors": [
+        "C_CROSS_REALITY",
+        "C_CHANNEL_SCALE",
+        "C_AGENTIC"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "C_CONVENTIONS",
+      "name": "Evidence-Based Spatial Conventions",
+      "shortName": "Spatial Conventions",
+      "cluster": "interaction",
+      "type": "challenge",
+      "subtitle": "The spatial computing design patterns that stick",
+      "start": 2033,
+      "end": 2035,
+      "ancestors": [
+        "C_LONGITUDINAL",
+        "C_ECO_BENCH",
+        "C_MICRO"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "spatial_conventions"
+    },
+    {
+      "id": "C_ANALYST_2035",
+      "name": "The Analyst of 2035",
+      "shortName": "The Analyst of 2035",
+      "cluster": "cognition",
+      "type": "challenge",
+      "subtitle": "Everything converges",
+      "start": 2033,
+      "end": 2035,
+      "ancestors": [
+        "C_AGENTIC",
+        "C_CROSS_INTERACT",
+        "C_AUTHORING",
+        "C_CONVENTIONS",
+        "C_FAILURE"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "VISUAL_VAR",
+      "name": "Visual Variables",
+      "shortName": "Visual Variables",
+      "cluster": "visualization",
+      "type": "foundation",
+      "subtitle": "Bertin 1967",
+      "start": 1967,
+      "end": 1967,
+      "ancestors": [],
+      "external": false,
+      "ur": true,
+      "strand": null
+    },
+    {
+      "id": "SCALES",
+      "name": "Scales of Measurement",
+      "shortName": "Scales of Measurement",
+      "cluster": "visualization",
+      "type": "foundation",
+      "subtitle": "Stevens 1946",
+      "start": 1946,
+      "end": 1946,
+      "ancestors": [],
+      "external": false,
+      "ur": true,
+      "strand": null
+    },
+    {
+      "id": "GRAPH_PERCEPT",
+      "name": "Graphical Perception",
+      "shortName": "Graphical Perception",
+      "cluster": "visualization",
+      "type": "foundation",
+      "subtitle": "Cleveland & McGill 1984",
+      "start": 1984,
+      "end": 1984,
+      "ancestors": [
+        "VISUAL_VAR",
+        "SCALES"
+      ],
+      "external": false,
+      "ur": true,
+      "strand": null
+    },
+    {
+      "id": "DIRECT_MANIP",
+      "name": "Direct Manipulation",
+      "shortName": "Direct Manipulation",
+      "cluster": "interaction",
+      "type": "foundation",
+      "subtitle": "Shneiderman 1983",
+      "start": 1983,
+      "end": 1983,
+      "ancestors": [],
+      "external": false,
+      "ur": true,
+      "strand": null
+    },
+    {
+      "id": "GULFS",
+      "name": "Gulfs of Execution and Evaluation",
+      "shortName": "Gulfs of Exec/Eval",
+      "cluster": "interaction",
+      "type": "foundation",
+      "subtitle": "Norman 1986",
+      "start": 1986,
+      "end": 1986,
+      "ancestors": [],
+      "external": false,
+      "ur": true,
+      "strand": "gulfs"
+    },
+    {
+      "id": "DYN_QUERIES",
+      "name": "Dynamic Queries",
+      "shortName": "Dynamic Queries",
+      "cluster": "interaction",
+      "type": "foundation",
+      "subtitle": "Shneiderman 1994",
+      "start": 1994,
+      "end": 1994,
+      "ancestors": [
+        "DIRECT_MANIP"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "info_seeking"
+    },
+    {
+      "id": "INFO_MANTRA",
+      "name": "Information-Seeking Mantra",
+      "shortName": "Info-Seeking Mantra",
+      "cluster": "interaction",
+      "type": "foundation",
+      "subtitle": "Shneiderman 1996",
+      "start": 1996,
+      "end": 1996,
+      "ancestors": [
+        "DYN_QUERIES"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "info_seeking"
+    },
+    {
+      "id": "DCOG",
+      "name": "Distributed Cognition",
+      "shortName": "Distributed Cognition",
+      "cluster": "cognition",
+      "type": "foundation",
+      "subtitle": "Hutchins 1995",
+      "start": 1995,
+      "end": 1995,
+      "ancestors": [],
+      "external": false,
+      "ur": true,
+      "strand": "distributed_cognition"
+    },
+    {
+      "id": "EXT_COG_KIRSH",
+      "name": "Intelligent Use of Space",
+      "shortName": "Intelligent Use of Space",
+      "cluster": "cognition",
+      "type": "foundation",
+      "subtitle": "Kirsh 1995",
+      "start": 1995,
+      "end": 1995,
+      "ancestors": [
+        "DCOG"
+      ],
+      "external": false,
+      "ur": true,
+      "strand": "external_cognition"
+    },
+    {
+      "id": "EXT_COG_SCAIFE",
+      "name": "External Cognition",
+      "shortName": "External Cognition",
+      "cluster": "cognition",
+      "type": "foundation",
+      "subtitle": "Scaife & Rogers 1996",
+      "start": 1996,
+      "end": 1996,
+      "ancestors": [
+        "EXT_COG_KIRSH"
+      ],
+      "external": false,
+      "ur": true,
+      "strand": "external_cognition"
+    },
+    {
+      "id": "DCOG_HCI",
+      "name": "Distributed Cognition for HCI",
+      "shortName": "DCog for HCI",
+      "cluster": "cognition",
+      "type": "foundation",
+      "subtitle": "Hollan, Hutchins & Kirsh 2000",
+      "start": 2000,
+      "end": 2000,
+      "ancestors": [
+        "DCOG"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "distributed_cognition"
+    },
+    {
+      "id": "VYGOTSKY",
+      "name": "Cultural-Historical Psychology",
+      "shortName": "Cultural-Hist. Psych.",
+      "cluster": "cognition",
+      "type": "foundation",
+      "subtitle": "Vygotsky 1978",
+      "start": 1978,
+      "end": 1978,
+      "ancestors": [],
+      "external": false,
+      "ur": true,
+      "strand": null
+    },
+    {
+      "id": "ACT_NARDI",
+      "name": "Activity Theory in HCI",
+      "shortName": "Activity Theory",
+      "cluster": "cognition",
+      "type": "foundation",
+      "subtitle": "Nardi 1996",
+      "start": 1996,
+      "end": 1996,
+      "ancestors": [
+        "VYGOTSKY"
+      ],
+      "external": false,
+      "ur": true,
+      "strand": "activity_theory"
+    },
+    {
+      "id": "ACT_KAPTELININ",
+      "name": "Acting with Technology",
+      "shortName": "Acting with Technology",
+      "cluster": "cognition",
+      "type": "foundation",
+      "subtitle": "Kaptelinin & Nardi 2006",
+      "start": 2006,
+      "end": 2006,
+      "ancestors": [
+        "ACT_NARDI"
+      ],
+      "external": false,
+      "ur": true,
+      "strand": "activity_theory"
+    },
+    {
+      "id": "INSTRUMENT",
+      "name": "Instrumental Interaction",
+      "shortName": "Instrumental Interaction",
+      "cluster": "interaction",
+      "type": "foundation",
+      "subtitle": "Beaudouin-Lafon 2000, 2004",
+      "start": 2000,
+      "end": 2004,
+      "ancestors": [
+        "DIRECT_MANIP",
+        "GULFS"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "substrates"
+    },
+    {
+      "id": "AVS_DATAFLOW",
+      "name": "Dataflow Visualization",
+      "shortName": "Dataflow Vis",
+      "cluster": "visualization",
+      "type": "foundation",
+      "subtitle": "Upson et al. 1989",
+      "start": 1989,
+      "end": 1989,
+      "ancestors": [],
+      "external": false,
+      "ur": false,
+      "strand": "vis_pipeline"
+    },
+    {
+      "id": "SCIVIS_PIPELINE",
+      "name": "Scientific Visualization Pipeline",
+      "shortName": "SciVis Pipeline",
+      "cluster": "visualization",
+      "type": "foundation",
+      "subtitle": "Haber & McNabb 1990",
+      "start": 1990,
+      "end": 1990,
+      "ancestors": [
+        "AVS_DATAFLOW"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "vis_pipeline"
+    },
+    {
+      "id": "VIS_PIPELINE",
+      "name": "Visualization Pipeline",
+      "shortName": "Vis Pipeline",
+      "cluster": "visualization",
+      "type": "foundation",
+      "subtitle": "Card, Mackinlay & Shneiderman 1999",
+      "start": 1999,
+      "end": 1999,
+      "ancestors": [
+        "VISUAL_VAR",
+        "SCIVIS_PIPELINE"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "vis_pipeline"
+    },
+    {
+      "id": "DATA_STATE",
+      "name": "Data State Reference Model",
+      "shortName": "Data State Model",
+      "cluster": "visualization",
+      "type": "foundation",
+      "subtitle": "Chi & Riedl 1998; Chi 2000",
+      "start": 1998,
+      "end": 2000,
+      "ancestors": [
+        "SCIVIS_PIPELINE"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "APT",
+      "name": "Automatic Presentation",
+      "shortName": "Automatic Presentation",
+      "cluster": "visualization",
+      "type": "foundation",
+      "subtitle": "Mackinlay 1986",
+      "start": 1986,
+      "end": 1986,
+      "ancestors": [
+        "VISUAL_VAR",
+        "SCALES"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "UBICOMP",
+      "name": "Ubiquitous Computing",
+      "shortName": "Ubiquitous Computing",
+      "cluster": "platforms",
+      "type": "foundation",
+      "subtitle": "Weiser 1991",
+      "start": 1991,
+      "end": 1991,
+      "ancestors": [],
+      "external": false,
+      "ur": true,
+      "strand": "ubicomp"
+    },
+    {
+      "id": "CALM_TECH",
+      "name": "Calm Technology",
+      "shortName": "Calm Technology",
+      "cluster": "context",
+      "type": "foundation",
+      "subtitle": "Weiser & Brown 1997",
+      "start": 1997,
+      "end": 1997,
+      "ancestors": [
+        "UBICOMP"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": null
+    },
+    {
+      "id": "TANGIBLE_BITS",
+      "name": "Tangible Bits",
+      "shortName": "Tangible Bits",
+      "cluster": "interaction",
+      "type": "foundation",
+      "subtitle": "Ishii & Ullmer 1997",
+      "start": 1997,
+      "end": 1997,
+      "ancestors": [
+        "UBICOMP",
+        "DIRECT_MANIP",
+        "DCOG"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "embodiment"
+    },
+    {
+      "id": "EMBODIED_INT",
+      "name": "Embodied Interaction",
+      "shortName": "Embodied Interaction",
+      "cluster": "interaction",
+      "type": "foundation",
+      "subtitle": "Dourish 2001",
+      "start": 2001,
+      "end": 2001,
+      "ancestors": [
+        "TANGIBLE_BITS"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "embodiment"
+    },
+    {
+      "id": "ULT_DISPLAY",
+      "name": "The Ultimate Display",
+      "shortName": "Ultimate Display",
+      "cluster": "platforms",
+      "type": "foundation",
+      "subtitle": "Sutherland 1965",
+      "start": 1965,
+      "end": 1965,
+      "ancestors": [],
+      "external": false,
+      "ur": true,
+      "strand": "reality_virtuality"
+    },
+    {
+      "id": "RV_CONTINUUM",
+      "name": "Reality–Virtuality Continuum",
+      "shortName": "RV Continuum",
+      "cluster": "platforms",
+      "type": "foundation",
+      "subtitle": "Milgram & Kishino 1994",
+      "start": 1994,
+      "end": 1994,
+      "ancestors": [
+        "ULT_DISPLAY"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "reality_virtuality"
+    },
+    {
+      "id": "AR_SURVEY",
+      "name": "Augmented Reality Survey",
+      "shortName": "AR Survey",
+      "cluster": "platforms",
+      "type": "foundation",
+      "subtitle": "Azuma 1997",
+      "start": 1997,
+      "end": 1997,
+      "ancestors": [
+        "RV_CONTINUUM"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "reality_virtuality"
+    },
+    {
+      "id": "INFO_FORAGING",
+      "name": "Information Foraging Theory",
+      "shortName": "Info Foraging",
+      "cluster": "cognition",
+      "type": "foundation",
+      "subtitle": "Pirolli & Card 1999",
+      "start": 1999,
+      "end": 1999,
+      "ancestors": [],
+      "external": false,
+      "ur": false,
+      "strand": "sensemaking"
+    },
+    {
+      "id": "PROXEMICS",
+      "name": "Proxemics",
+      "shortName": "Proxemics",
+      "cluster": "context",
+      "type": "foundation",
+      "subtitle": "Hall 1966",
+      "start": 1966,
+      "end": 1966,
+      "ancestors": [],
+      "external": false,
+      "ur": true,
+      "strand": null
+    }
+  ],
+  "strands": {
+    "info_seeking": {
+      "label": "Information Seeking",
+      "members": [
+        "DYN_QUERIES",
+        "INFO_MANTRA"
+      ]
+    },
+    "external_cognition": {
+      "label": "External Cognition",
+      "members": [
+        "EXT_COG_KIRSH",
+        "EXT_COG_SCAIFE"
+      ]
+    },
+    "activity_theory": {
+      "label": "Activity Theory in HCI",
+      "members": [
+        "ACT_NARDI",
+        "ACT_KAPTELININ"
+      ]
+    },
+    "embodiment": {
+      "label": "Embodied & Tangible Interaction",
+      "members": [
+        "TANGIBLE_BITS",
+        "EMBODIED_INT"
+      ]
+    },
+    "vis_grammars": {
+      "label": "Visualization Grammars",
+      "members": [
+        "VIS_GRAMMAR_WILKINSON",
+        "VIS_GRAMMAR_VEGA"
+      ]
+    },
+    "situated_analytics": {
+      "label": "Situated Analytics",
+      "members": [
+        "EMBEDDED_DATA",
+        "SA_SITUATED",
+        "SA_BRESSA",
+        "SITVIS_PATTERNS",
+        "SA_SHIN"
+      ]
+    },
+    "ubicomp": {
+      "label": "Ubiquitous Computing",
+      "members": [
+        "UBICOMP",
+        "QU_HARRISON",
+        "QU_DOURISH"
+      ]
+    },
+    "distributed_cognition": {
+      "label": "Distributed Cognition",
+      "members": [
+        "DCOG",
+        "DCOG_HCI",
+        "DCOG_INFOVIS"
+      ]
+    },
+    "sensemaking": {
+      "label": "Sensemaking Theory",
+      "members": [
+        "COST_STRUCTURE",
+        "INFO_FORAGING",
+        "SENSEMAKING"
+      ]
+    },
+    "space_to_think": {
+      "label": "Space to Think",
+      "members": [
+        "SANDBOX",
+        "SPACE_TO_THINK",
+        "IST"
+      ]
+    },
+    "vis_pipeline": {
+      "label": "The Visualization Pipeline",
+      "members": [
+        "AVS_DATAFLOW",
+        "SCIVIS_PIPELINE",
+        "VIS_PIPELINE"
+      ]
+    },
+    "reality_virtuality": {
+      "label": "Reality–Virtuality",
+      "members": [
+        "ULT_DISPLAY",
+        "RV_CONTINUUM",
+        "AR_SURVEY"
+      ]
+    },
+    "cross_reality_platform": {
+      "label": "Cross-Reality Platforms",
+      "members": [
+        "C_WEBXR_BENCH",
+        "C_CROSS_REALITY"
+      ]
+    },
+    "gulfs": {
+      "label": "Gulfs of Interaction",
+      "members": [
+        "GULFS",
+        "THREE_GULFS"
+      ]
+    },
+    "substrates": {
+      "label": "Interaction Substrates",
+      "members": [
+        "INSTRUMENT",
+        "SUBSTRATES"
+      ]
+    },
+    "science_of_interaction": {
+      "label": "Science of Interaction",
+      "members": [
+        "INTERACT_INTENTS",
+        "SCI_INTERACTION"
+      ]
+    },
+    "spatial_conventions": {
+      "label": "Spatial Interaction Conventions",
+      "members": [
+        "C_MICRO",
+        "C_CONVENTIONS"
+      ]
+    },
+    "ai_partnership": {
+      "label": "AI as Analytical Partner",
+      "members": [
+        "C_AI_SITUATED",
+        "C_AGENTIC"
+      ]
+    },
+    "eval_infrastructure": {
+      "label": "Evaluation Infrastructure",
+      "members": [
+        "C_TELEMETRY",
+        "C_ECO_BENCH"
+      ]
+    },
+    "proxemic_collab": {
+      "label": "Proxemic Collaboration",
+      "members": [
+        "PROXEMIC_LENSES",
+        "C_PROXEMIC",
+        "C_ASYMMETRIC"
+      ]
+    }
+  }
+}
