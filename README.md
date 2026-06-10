@@ -25,25 +25,14 @@ analytics, but stands on its own as a tool for exploring how ideas beget one ano
 
 This is plain HTML and JavaScript — no build step and no install. D3 v7 is loaded from a
 CDN. Because the page fetches a local JSON file (`json/data.json`), browsers will block it
-if you open `lineage.html` directly via `file://`. Serve the folder over HTTP instead:
+if you open `index.html` directly via `file://`. Serve the folder over HTTP instead:
 
 ```sh
 python -m http.server 8000
-# then open http://localhost:8000/lineage.html
+# then open http://localhost:8000/
 ```
 
-Any static file server works — for example `npx serve` (then open the printed URL with
-`/lineage.html` appended).
-
-## Live demo (GitHub Pages)
-
-Because the project is just static files served over HTTP, it can be hosted directly on
-GitHub Pages: in the repository, go to **Settings → Pages** and deploy from the `main`
-branch / root. The demo will then be available at:
-
-```
-https://nickelm.github.io/lineage-plot/lineage.html
-```
+Any static file server works — for example `npx serve` (then open the printed URL).
 
 ## Data format
 
