@@ -12,29 +12,32 @@
   .controls button { margin-right: 8px; padding: 4px 10px; font-family: inherit; font-size: 11px; cursor: pointer; border: 1px solid #999; background: white; }
   .controls button.active { background: #222; color: white; border-color: #222; }
   .controls .group { margin-bottom: 8px; }
-  .panel-title { font-size: 12px; font-weight: bold; letter-spacing: 0.5px; }
-  .axis-label { font-size: 11px; fill: #333; }
-  .col-label { font-size: 10px; }
-  .row-label { font-size: 11px; cursor: pointer; }
+  .controls select { font-family: inherit; font-size: 11px; margin: 0 4px; }
+  /* Chart font sizes and stroke widths live in #chart-style, generated from
+     STYLE by applyStyleCSS(). */
+  .panel-title { font-weight: bold; letter-spacing: 0.5px; }
+  .axis-label { fill: #333; }
+  .row-label { cursor: pointer; }
   .row-label.highlighted { font-weight: bold; }
   .col-label.highlighted { font-weight: bold; }
   .col-label.offscreen { font-style: italic; }
-  .grid-line { stroke: #eee; stroke-width: 0.5; }
-  .year-tick { stroke: #ccc; stroke-width: 0.5; }
-  .period-rule { stroke: #d0d0d0; stroke-width: 0.5; stroke-dasharray: 2,2; }
-  .divider { stroke: #bbb; stroke-width: 1; }
+  .grid-line { stroke: #eee; }
+  .year-tick { stroke: #ccc; }
+  .period-rule { stroke: #d0d0d0; stroke-dasharray: 2,2; }
+  .divider { stroke: #bbb; }
   .dot { cursor: pointer; }
-  .connector { stroke-width: 1.2; fill: none; }
+  .connector { fill: none; }
   .lifespan { cursor: pointer; }
   .strand-arrow { pointer-events: none; }
   .hover-band { fill-opacity: 0.10; stroke-opacity: 0.38; stroke-width: 1; pointer-events: none; }
-  .legend-text { font-size: 10px; fill: #333; }
+  .legend-text { fill: #333; }
   #tooltip { position: absolute; display: none; pointer-events: none;
     background: #fff; border: 1px solid #999; padding: 3px 7px;
     font-size: 11px; color: #222; font-family: Georgia, 'Times New Roman', serif; }
   #error { color: #a00; font-size: 13px; margin: 16px 0; display: none; }
   #error code { background: #eee; padding: 1px 5px; }
 </style>
+<style id="chart-style"></style>
 </head>
 <body>
 
@@ -64,6 +67,26 @@
     <button id="mono-toggle">Monochrome</button>
     <button id="export-svg">Export SVG</button>
   </div>
+  <div class="group">
+    <strong>Display:</strong>
+    <label>Text size
+      <select id="text-scale">
+        <option value="1">1.0×</option>
+        <option value="1.2">1.2×</option>
+        <option value="1.5">1.5×</option>
+        <option value="1.8">1.8×</option>
+        <option value="2">2.0×</option>
+      </select></label>
+    <label>Line weight
+      <select id="line-scale">
+        <option value="1">1.0×</option>
+        <option value="1.5">1.5×</option>
+        <option value="2">2.0×</option>
+        <option value="3">3.0×</option>
+      </select></label>
+    <button data-preset="screen" class="style-preset">Screen</button>
+    <button data-preset="print" class="style-preset">Print</button>
+  </div>
 </div>
 
 <div id="error"></div>
@@ -92,23 +115,64 @@ function clusterMeta(c) {
 // =====================================================================
 // LAYOUT CONSTANTS
 // =====================================================================
-const MATRIX_X = 240, MATRIX_Y = 200;
+// Matrix origin: measured per render() from the widest row label and the
+// longest column label (see layoutHeader), never smaller than these minimums.
+const MATRIX_X_MIN = 240, AXIS_Y_MIN = 201;
+let MATRIX_X = MATRIX_X_MIN, MATRIX_Y = AXIS_Y_MIN - 1;
 // Row height: the base 26 px, or a taller value when a multi-member strand
-// is on screen and needs room for per-segment labels. Set per render().
+// is on screen and needs room for per-segment labels. Both scale with the
+// text size; set per render().
 const ROW_H_BASE = 26, ROW_H_TALL = 42;
 let ROW_H = ROW_H_BASE;
 // Column width adapts to the column count (set per render): full width for a
 // sparse matrix, compacted toward MIN_COL_W so a dense matrix — above all the
 // "All" view — still fits without an unreadably wide canvas. COL_W_BUDGET is
-// the target total matrix width the compaction aims at.
-const MAX_COL_W = 44, MIN_COL_W = 16, COL_W_BUDGET = 1100;
+// the target total matrix width the compaction aims at. MIN_COL_W grows with
+// the column-label font so rotated labels never collide.
+const MAX_COL_W = 44, MIN_COL_W_BASE = 16, COL_W_BUDGET = 1100;
 let COL_W = MAX_COL_W;
+// The Gantt width stays fixed as text grows: a printed figure is scaled to
+// the page width, so text only gets more legible if the canvas doesn't grow
+// with it.
 const GANTT_W = 560, GANTT_GAP = 44;
 const OFFSCREEN_GREY = "#9a9a9a";   // off-screen (external / Ur) column labels
 
+// =====================================================================
+// DISPLAY STYLE — text-size and line-weight multipliers over the base
+// sizes below. Set from the Display controls, the Screen/Print presets, or
+// the ?text=&line= URL params (kept in sync so a URL reproduces a figure).
+// =====================================================================
+const STYLE_PRESETS = { screen: { text: 1.2, line: 1.5 }, print: { text: 1.5, line: 2 } };
+let STYLE = { ...STYLE_PRESETS.screen };
+const STYLE_RANGE = [0.5, 3];
+const FONT_BASE = { title: 12, axis: 11, col: 10, row: 11, seg: 9, legend: 10 };   // px at 1×
+const LINE_BASE = { connector: 1.2, grid: 0.5, tick: 0.5, rule: 0.5, divider: 1, axis: 0.5, axisTick: 1, arrow: 1 };
+function fs(k) { return +(FONT_BASE[k] * STYLE.text).toFixed(1); }
+function lw(k) { return +(LINE_BASE[k] * STYLE.line).toFixed(2); }
+// Text-scaled geometry (row furniture, dots, legend), rounded to 0.1 px.
+function ts(px) { return +(px * STYLE.text).toFixed(1); }
+
+// Write the size-dependent chart rules into #chart-style. Kept separate from
+// the static stylesheet so exportSVG can inline both.
+function applyStyleCSS() {
+  document.getElementById("chart-style").textContent = [
+    `.panel-title { font-size: ${fs("title")}px; }`,
+    `.axis-label { font-size: ${fs("axis")}px; }`,
+    `.col-label { font-size: ${fs("col")}px; }`,
+    `.row-label { font-size: ${fs("row")}px; }`,
+    `.seg-label { font-size: ${fs("seg")}px; }`,
+    `.legend-text { font-size: ${fs("legend")}px; }`,
+    `.grid-line { stroke-width: ${lw("grid")}; }`,
+    `.year-tick { stroke-width: ${lw("tick")}; }`,
+    `.period-rule { stroke-width: ${lw("rule")}; }`,
+    `.divider { stroke-width: ${lw("divider")}; }`,
+    `.connector { stroke-width: ${lw("connector")}; }`
+  ].join("\n");
+}
+
 // Emphasis tiers and natural base opacities.
 const OP = { focused: 1.0, related: 0.6, unrelated: 0.15 };
-const BASE = { dot: 1.0, connector: 0.5, lifespan: 0.85, label: 1.0 };
+const BASE = { dot: 1.0, connector: 0.7, lifespan: 0.85, label: 1.0 };
 const HOVER_DIM = 0.6;              // soft-preview dim level
 
 // Default sort direction per mode.
@@ -139,7 +203,11 @@ const MONO_PATTERNS = {
   collaboration: "pat-horiz",
   evaluation:    "pat-vert"
 };
-const DOT_AREA = 95;   // d3.symbol .size(), tuned to read like the r=5.5 dot
+// Matrix dot radius (scaled with text, capped to the column width; set per
+// render()) and the matching d3.symbol .size() — 95 reads like the r=5.5 dot.
+const DOT_R_BASE = 5.5, DOT_AREA_BASE = 95;
+let DOT_R = DOT_R_BASE;
+function dotArea(r) { return DOT_AREA_BASE * (r / DOT_R_BASE) ** 2; }
 function monoSymbol(c) { return MONO_SYMBOLS[c] || d3.symbolCircle; }
 function monoPattern(c) { return MONO_PATTERNS[c] || "pat-solid"; }
 function dotTransform(x) { return `translate(${x},0)`; }
@@ -443,16 +511,47 @@ function drawConnectors(gConn, u, rid) {
 // arrows on segmented strand rows. Always points rightward.
 function strandArrow(g, x1, x2, color, rid) {
   if (x2 <= x1 + 2) return;
-  // Bar runs y = -8 … +4, so its vertical centre is y = -2.
-  const ay = -2;
+  // Bar runs y = -8 … +4 (×text), so its vertical centre is y = -2.
+  const ay = ts(-2);
+  // arrowhead grows with the line weight so it stays visible on the shaft
+  const k = Math.sqrt(STYLE.line), hl = 5 * k, hw = 3 * k;
   g.append("line")
      .attr("class", `lifespan strand-arrow bar-${rid}`)
-     .attr("x1", x1).attr("y1", ay).attr("x2", x2 - 4).attr("y2", ay)
-     .attr("stroke", color).attr("stroke-width", 1).attr("opacity", BASE.lifespan);
+     .attr("x1", x1).attr("y1", ay).attr("x2", x2 - hl + 1).attr("y2", ay)
+     .attr("stroke", color).attr("stroke-width", lw("arrow")).attr("opacity", BASE.lifespan);
   g.append("path")
      .attr("class", `lifespan strand-arrow bar-${rid}`)
-     .attr("d", `M${x2},${ay} L${x2-5},${ay-3} L${x2-5},${ay+3} Z`)
+     .attr("d", `M${x2},${ay} L${x2-hl},${ay-hw} L${x2-hl},${ay+hw} Z`)
      .attr("fill", color).attr("opacity", BASE.lifespan);
+}
+
+// Widest rendered width among `strings` set in an SVG text of class `cls`
+// (the size-dependent rules in #chart-style apply).
+function maxTextWidth(cls, strings) {
+  const t = svg.append("text").attr("class", cls);
+  let w = 0;
+  strings.forEach(s => { t.text(s); w = Math.max(w, t.node().getComputedTextLength()); });
+  t.remove();
+  return w;
+}
+
+// Cluster legend layout — every cluster, wrapping onto as many rows as the
+// Gantt width needs. Measured before drawing so the header can make room.
+function legendLayout() {
+  const dotR = ts(5.5), gap = ts(8), pad = ts(22), swatch = ts(11);
+  // mono entries carry a shape key plus a patterned swatch, so they are
+  // wider than the colour-mode coloured dot.
+  const keyW = state.mono ? dotR * 2 + 4 + swatch : dotR * 2;
+  let lx = GANTT_X, row = 0;
+  const entries = CLUSTER_ORDER.map(key => {
+    const tw = maxTextWidth("legend-text", [CLUSTERS[key].label]);
+    const entryW = keyW + gap + tw;
+    if (lx > GANTT_X && lx + entryW > GANTT_X + GANTT_W) { lx = GANTT_X; row++; }
+    const e = { key, x: lx, row };
+    lx += entryW + pad;
+    return e;
+  });
+  return { entries, rows: row + 1, dotR, gap, swatch, keyW };
 }
 
 // Full build — runs only on period change, mono toggle, or group toggle.
@@ -468,49 +567,74 @@ function render() {
   // ---- row height: taller only when a multi-member strand is on screen ----
   const hasMultiStrand = state.group && ROW_UNITS.some(
     u => isStrandRow(u) && u.members.length >= 2);
-  ROW_H = hasMultiStrand ? ROW_H_TALL : ROW_H_BASE;
+  ROW_H = Math.round((hasMultiStrand ? ROW_H_TALL : ROW_H_BASE) * STYLE.text);
 
   // ---- dynamic layout (constant across sorts within a period) ----
   // Compact the columns when there are many: keep MAX_COL_W until the matrix
   // would exceed COL_W_BUDGET, then shrink evenly down to MIN_COL_W.
   const nCols = state.colOrder.length;
+  const MIN_COL_W = Math.max(MIN_COL_W_BASE, Math.ceil(fs("col") * 1.5));
   COL_W = nCols
     ? Math.max(MIN_COL_W, Math.min(MAX_COL_W, Math.round(COL_W_BUDGET / nCols)))
     : MAX_COL_W;
+  DOT_R = Math.min(ts(DOT_R_BASE), COL_W / 2 - 1);
+
+  // Left margin: room for the widest row label (+10% for its bold state).
+  const rowLabW = maxTextWidth("row-label",
+    ROW_UNITS.map(u => `${clusterMeta(u.cluster).glyph} ${rowLabelText(u)}`));
+  MATRIX_X = Math.max(MATRIX_X_MIN, Math.ceil(rowLabW * 1.1) + 24);
   GANTT_X = MATRIX_X + state.colOrder.length * COL_W + GANTT_GAP;
   const W = GANTT_X + GANTT_W + 40;
   MATRIX_RIGHT = MATRIX_X + state.colOrder.length * COL_W;
-  const MATRIX_BOTTOM = MATRIX_Y + state.rowOrder.length * ROW_H;
+
+  // ---- header, top down: panel titles, legend (Gantt side), then the
+  //      rulers. The axis drops low enough to clear the legend and the
+  //      longest (rotated) column label, which hangs up from the axis. ----
+  const TITLE_Y = 28 + fs("title");
+  const leg = legendLayout();
+  const LEG_ROW0 = TITLE_Y + ts(20), LEG_ROW_H = ts(18);
+  const legBottom = LEG_ROW0 + (leg.rows - 1) * LEG_ROW_H + ts(4);
+  const colLabW = maxTextWidth("col-label",
+    COL_THEMES.map(t => t.shortName || t.name)) * 1.1;
+  // Both rulers — the Gantt time axis and the matrix mirror axis — sit just
+  // above the matrix/timeline, so the axis reads as part of the chart body.
+  const AXIS_Y = Math.ceil(Math.max(AXIS_Y_MIN,
+    TITLE_Y + 16 + colLabW,
+    legBottom + 16 + fs("axis")));
+  // Gap down to the first row centre: half a row (so strand segment labels
+  // clear the axis), never less than the original 14 px.
+  GRID_TOP = AXIS_Y + Math.max(14, Math.round(ROW_H / 2) + 1);
+  MATRIX_Y = GRID_TOP - 15;
+  // Grid y-extent is invariant under row sort (row count is fixed).
+  GRID_BOTTOM = GRID_TOP + Math.max(state.rowOrder.length - 1, 0) * ROW_H;
+  const MATRIX_BOTTOM = GRID_TOP + (state.rowOrder.length - 0.5) * ROW_H - 2;
   const H = MATRIX_BOTTOM + 40;
   svg.attr("width", W).attr("height", H);
 
   const ymin = YEAR_MIN, ymax = (YEAR_MAX > YEAR_MIN) ? YEAR_MAX : YEAR_MIN + 1;
   yearScale = d3.scaleLinear().domain([ymin, ymax]).range([GANTT_X, GANTT_X + GANTT_W]);
 
-  // Grid y-extent is invariant under row sort (row count is fixed).
-  GRID_TOP    = MATRIX_Y + 15;
-  GRID_BOTTOM = MATRIX_Y + 15 + Math.max(state.rowOrder.length - 1, 0) * ROW_H;
-  // Both rulers — the Gantt time axis and the matrix mirror axis — sit just
-  // above the matrix/timeline, so the axis reads as part of the chart body.
-  const AXIS_Y = GRID_TOP - 14;
-
   // ================= STATIC LAYER =================
   const gStatic = svg.append("g").attr("class", "static-layer");
 
-  gStatic.append("text").attr("x", MATRIX_X).attr("y", 40).attr("class", "panel-title").text("ANCESTRY");
-  gStatic.append("text").attr("x", GANTT_X).attr("y", 40).attr("class", "panel-title").text("LIFESPAN");
+  gStatic.append("text").attr("x", MATRIX_X).attr("y", TITLE_Y).attr("class", "panel-title").text("ANCESTRY");
+  gStatic.append("text").attr("x", GANTT_X).attr("y", TITLE_Y).attr("class", "panel-title").text("LIFESPAN");
 
   // -------- Gantt time axis — a tick every year, just above the bars --------
+  // Label every 1/2/5/10… years: the finest step whose labels don't collide.
   const span = ymax - ymin;
-  const labelStep = span <= 20 ? 1 : 5;
+  const yearW = maxTextWidth("axis-label", [String(ymax)]);
+  const labelStep = [1, 2, 5, 10, 20, 50].find(
+    s => s * GANTT_W / span >= yearW * 1.3) || 100;
   const axisStroke = state.mono ? "#000" : "#888";
   gStatic.append("line").attr("x1", GANTT_X).attr("y1", AXIS_Y).attr("x2", GANTT_X + GANTT_W).attr("y2", AXIS_Y)
-     .attr("stroke", axisStroke).attr("stroke-width", 0.5);
+     .attr("stroke", axisStroke).attr("stroke-width", lw("axis"));
   for (let y = ymin; y <= ymax; y++) {
     const x = yearScale(y);
     const labelled = (y % labelStep === 0);
     gStatic.append("line").attr("x1", x).attr("y1", labelled ? AXIS_Y - 4 : AXIS_Y - 2)
-       .attr("x2", x).attr("y2", AXIS_Y + 4).attr("stroke", axisStroke);
+       .attr("x2", x).attr("y2", AXIS_Y + 4).attr("stroke", axisStroke)
+       .attr("stroke-width", lw("axisTick"));
     if (labelled) {
       gStatic.append("text").attr("x", x).attr("y", AXIS_Y - 8).attr("class","axis-label")
          .attr("text-anchor","middle").text(y);
@@ -521,11 +645,12 @@ function render() {
   //          between the column labels and the matrix to echo the time axis.
   gStatic.append("line").attr("x1", MATRIX_X).attr("y1", AXIS_Y)
      .attr("x2", MATRIX_RIGHT).attr("y2", AXIS_Y)
-     .attr("stroke","#bbb").attr("stroke-width", 0.5);
+     .attr("stroke","#bbb").attr("stroke-width", lw("axis"));
   for (let i = 0; i < state.colOrder.length; i++) {
     const x = MATRIX_X + COL_W / 2 + i * COL_W;
     gStatic.append("line").attr("x1", x).attr("y1", AXIS_Y - 2)
-       .attr("x2", x).attr("y2", AXIS_Y + 4).attr("stroke","#bbb");
+       .attr("x2", x).attr("y2", AXIS_Y + 4).attr("stroke","#bbb")
+       .attr("stroke-width", lw("axisTick"));
   }
 
   // -------- Year grid in the lifespan panel (static y-extent) --------
@@ -540,41 +665,32 @@ function render() {
   }
 
   // -------- Divider --------
-  gStatic.append("line").attr("x1", GANTT_X - 22).attr("y1", 54)
+  gStatic.append("line").attr("x1", GANTT_X - 22).attr("y1", TITLE_Y + 14)
      .attr("x2", GANTT_X - 22).attr("y2", MATRIX_BOTTOM + 5).attr("class","divider");
 
   // -------- Cluster legend — Gantt upper-right, just below the panel title;
-  //          all seven clusters, wrapping to a second row.
-  const LEG_DOT_R = 5.5, LEG_GAP = 8, LEG_PAD = 22;
-  const LEG_ROW0 = 60, LEG_ROW_H = 18;
-  const LEG_SWATCH = 11;   // mono pattern swatch, drawn after the shape
-  let lx = GANTT_X, lrow = 0;
-  CLUSTER_ORDER.forEach(key => {
-    const label = CLUSTERS[key].label;
-    const txt = gStatic.append("text").attr("class","legend-text").text(label);
-    const tw = txt.node().getComputedTextLength();
-    // mono entries carry a shape key plus a patterned swatch, so they are
-    // wider than the colour-mode coloured dot — widen entryW accordingly.
-    const keyW = state.mono ? LEG_DOT_R * 2 + 4 + LEG_SWATCH : LEG_DOT_R * 2;
-    const entryW = keyW + LEG_GAP + tw;
-    if (lx > GANTT_X && lx + entryW > GANTT_X + GANTT_W) { lx = GANTT_X; lrow = 1; }
-    const ly = LEG_ROW0 + lrow * LEG_ROW_H;
-    txt.attr("x", lx + keyW + LEG_GAP).attr("y", ly);
+  //          all seven clusters, laid out by legendLayout().
+  const legMid = ts(4);    // key marks centre on the text's x-height
+  leg.entries.forEach(({ key, x: lx, row }) => {
+    const ly = LEG_ROW0 + row * LEG_ROW_H;
+    gStatic.append("text").attr("class","legend-text")
+       .attr("x", lx + leg.keyW + leg.gap).attr("y", ly)
+       .text(CLUSTERS[key].label);
     if (state.mono) {
       gStatic.append("path")
-         .attr("d", d3.symbol().type(monoSymbol(key)).size(DOT_AREA)())
-         .attr("transform", `translate(${lx + LEG_DOT_R},${ly - 4})`)
+         .attr("d", d3.symbol().type(monoSymbol(key)).size(dotArea(leg.dotR))())
+         .attr("transform", `translate(${lx + leg.dotR},${ly - legMid})`)
          .attr("fill", "#000");
+      // mono pattern swatch, drawn after the shape
       gStatic.append("rect")
-         .attr("x", lx + LEG_DOT_R * 2 + 4).attr("y", ly - 4 - LEG_SWATCH / 2)
-         .attr("width", LEG_SWATCH).attr("height", LEG_SWATCH)
+         .attr("x", lx + leg.dotR * 2 + 4).attr("y", ly - legMid - leg.swatch / 2)
+         .attr("width", leg.swatch).attr("height", leg.swatch)
          .attr("fill", `url(#${monoPattern(key)})`)
          .attr("stroke", "#999").attr("stroke-width", 0.5);
     } else {
-      gStatic.append("circle").attr("cx", lx + LEG_DOT_R).attr("cy", ly - 4)
-         .attr("r", LEG_DOT_R).attr("fill", CLUSTERS[key].color);
+      gStatic.append("circle").attr("cx", lx + leg.dotR).attr("cy", ly - legMid)
+         .attr("r", leg.dotR).attr("fill", CLUSTERS[key].color);
     }
-    lx += entryW + LEG_PAD;
   });
 
   // ---- hover bands: faint row/column highlight, repositioned on hover.
@@ -651,8 +767,8 @@ function render() {
       const x0 = segL(m), x1 = segR(m);
       const bar = g.append("rect")
          .attr("class", `lifespan bar-${rid} seg-${m.id}`)
-         .attr("x", x0).attr("y", -8)
-         .attr("width", Math.max(x1 - x0, 3)).attr("height", 12)
+         .attr("x", x0).attr("y", ts(-8))
+         .attr("width", Math.max(x1 - x0, 3)).attr("height", ts(12))
          .attr("fill", barFill)
          .attr("opacity", BASE.lifespan)
          .on("click", () => onRowClick(rid));
@@ -669,7 +785,7 @@ function render() {
       if (!multiSeg) {
         if (m.end > ymax) {
           g.append("path").attr("class", `lifespan bar-${rid}`)
-             .attr("d", `M${x1},-8 L${x1+8},-2 L${x1},4 Z`)
+             .attr("d", `M${x1},${ts(-8)} L${x1+ts(8)},${ts(-2)} L${x1},${ts(4)} Z`)
              .attr("fill", markBlack).attr("opacity", BASE.lifespan)
              .on("click", () => onRowClick(rid))
              .on("mouseover", () => previewRow(rid, true))
@@ -677,7 +793,7 @@ function render() {
         }
         if (m.start < ymin) {
           g.append("path").attr("class", `lifespan bar-${rid}`)
-             .attr("d", `M${x0},-8 L${x0-8},-2 L${x0},4 Z`)
+             .attr("d", `M${x0},${ts(-8)} L${x0-ts(8)},${ts(-2)} L${x0},${ts(4)} Z`)
              .attr("fill", markBlack).attr("opacity", BASE.lifespan)
              .on("click", () => onRowClick(rid))
              .on("mouseover", () => previewRow(rid, true))
@@ -699,17 +815,21 @@ function render() {
         strandArrow(g, segR(last), GANTT_X + GANTT_W, markBlack, rid);
       }
       // short-name labels, alternating above (even i) and below (odd i) so
-      // close-together segments don't overwrite each other.
+      // close-together segments don't overwrite each other. Centred on the
+      // segment, but nudged inward so a label never runs off the canvas.
       segs.forEach((m, i) => {
-        const labelY = (i % 2 === 0) ? -13 : 17;
+        const labelY = ts((i % 2 === 0) ? -13 : 17);
+        const text = m.shortName || m.name;
+        const half = maxTextWidth("row-label seg-label", [text]) / 2;
+        const cx = Math.max(GANTT_X + half,
+          Math.min((segL(m) + segR(m)) / 2, GANTT_X + GANTT_W + 36 - half));
         g.append("text")
-           .attr("class", `row-label rowLab-${rid}`)
-           .attr("x", (segL(m) + segR(m)) / 2).attr("y", labelY)
+           .attr("class", `row-label seg-label rowLab-${rid}`)
+           .attr("x", cx).attr("y", labelY)
            .attr("text-anchor", "middle")
-           .style("font-size", "9px")
            .attr("fill", markBlack)
            .attr("opacity", BASE.label)
-           .text(m.shortName || m.name)
+           .text(text)
            .on("click", () => onRowClick(rid))
            .on("mouseover", (e) => { previewRow(rid, true); showSegTip(e, m); })
            .on("mousemove", (e) => moveTip(e))
@@ -733,11 +853,11 @@ function render() {
       let dot;
       if (state.mono) {
         dot = g.append("path")
-           .attr("d", d3.symbol().type(monoSymbol(ancestor.cluster)).size(DOT_AREA)())
+           .attr("d", d3.symbol().type(monoSymbol(ancestor.cluster)).size(dotArea(DOT_R))())
            .attr("fill", "#000");
       } else {
         dot = g.append("circle")
-           .attr("cx", 0).attr("cy", 0).attr("r", 5.5)
+           .attr("cx", 0).attr("cy", 0).attr("r", DOT_R)
            .attr("fill", clusterMeta(ancestor.cluster).color);
       }
       dot.attr("class", `dot dot-row-${rid} dot-col-${aId}`)
@@ -751,7 +871,7 @@ function render() {
     // row label (left margin)
     g.append("text")
        .attr("class","row-label rowLab-" + rid)
-       .attr("x", MATRIX_X - 8).attr("y", 4)
+       .attr("x", MATRIX_X - 8).attr("y", ts(4))
        .attr("text-anchor","end")
        .attr("fill", markBlack)
        .attr("opacity", BASE.label)
@@ -1070,6 +1190,53 @@ d3.select("#group-toggle").on("change", function() {
 
 d3.select("#export-svg").on("click", exportSVG);
 
+// Display style: text size / line weight selects and the Screen/Print
+// presets. Like the mono toggle, a full render() keeps focus and sort.
+function clampScale(v) {
+  return Number.isFinite(v)
+    ? +Math.min(STYLE_RANGE[1], Math.max(STYLE_RANGE[0], v)).toFixed(2) : null;
+}
+function syncStyleControls() {
+  [["#text-scale", STYLE.text], ["#line-scale", STYLE.line]].forEach(([id, v]) => {
+    const sel = d3.select(id);
+    // a URL value outside the stock list gets its own option
+    if (sel.select(`option[value="${v}"]`).empty()) {
+      sel.append("option").attr("value", v).text(`${v}×`);
+    }
+    sel.property("value", String(v));
+  });
+  d3.selectAll(".style-preset").classed("active", function() {
+    const p = STYLE_PRESETS[this.dataset.preset];
+    return p.text === STYLE.text && p.line === STYLE.line;
+  });
+}
+// Mirror the style into ?text=&line= so the URL reproduces the figure; the
+// default (Screen) style keeps the URL clean.
+function writeStyleURL() {
+  const url = new URL(window.location.href);
+  const d = STYLE_PRESETS.screen;
+  if (STYLE.text === d.text && STYLE.line === d.line) {
+    url.searchParams.delete("text");
+    url.searchParams.delete("line");
+  } else {
+    url.searchParams.set("text", STYLE.text);
+    url.searchParams.set("line", STYLE.line);
+  }
+  history.replaceState(null, "", url);
+}
+function setStyle(s) {
+  STYLE = { ...STYLE, ...s };
+  applyStyleCSS();
+  syncStyleControls();
+  writeStyleURL();
+  if (ALL_THEMES.length) render();
+}
+d3.select("#text-scale").on("change", function() { setStyle({ text: +this.value }); });
+d3.select("#line-scale").on("change", function() { setStyle({ line: +this.value }); });
+d3.selectAll(".style-preset").on("click", function() {
+  setStyle(STYLE_PRESETS[this.dataset.preset]);
+});
+
 // =====================================================================
 // SVG EXPORT — serialise the live plot to a standalone .svg file: inline
 // stylesheet, white background, no toolbar, no external dependencies.
@@ -1092,10 +1259,12 @@ function exportSVG() {
   const bands = clone.querySelector(".bands-layer");
   if (bands) bands.remove();
 
-  // inline the stylesheet so CSS-driven strokes/fonts survive standalone.
-  // The live stylesheet's body/.controls/#tooltip rules are inert in an SVG.
+  // inline the stylesheets (static + generated #chart-style) so CSS-driven
+  // strokes/fonts survive standalone. The live stylesheet's
+  // body/.controls/#tooltip rules are inert in an SVG.
   const styleEl = document.createElementNS(SVGNS, "style");
-  const liveCSS = document.querySelector("head style").textContent;
+  const liveCSS = Array.from(document.querySelectorAll("head style"))
+    .map(s => s.textContent).join("\n");
   styleEl.textContent = "text{font-family:Georgia,'Times New Roman',serif;}\n" + liveCSS;
   clone.insertBefore(styleEl, clone.firstChild);
 
@@ -1184,6 +1353,15 @@ async function init() {
     this.dataset.base = this.textContent.trim();
   });
   updateSortButtons();
+
+  // Display style from ?text=&line= (clamped), falling back to Screen.
+  const params = new URLSearchParams(window.location.search);
+  const pText = clampScale(parseFloat(params.get("text")));
+  const pLine = clampScale(parseFloat(params.get("line")));
+  if (pText !== null) STYLE.text = pText;
+  if (pLine !== null) STYLE.line = pLine;
+  applyStyleCSS();
+  syncStyleControls();
 
   let data;
   try {

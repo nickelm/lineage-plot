@@ -1,7 +1,7 @@
 {
-  "label": "src",
+  "label": "ua-lineage",
   "yearMin": 1986,
-  "yearMax": 2036,
+  "yearMax": 2026,
   "themes": [
     {
       "id": "SANDBOX",
@@ -423,7 +423,7 @@
       "start": 2010,
       "end": 2010,
       "ancestors": [
-        "UA",
+        "UBICOMP",
         "CALM_TECH"
       ],
       "external": false,
@@ -494,7 +494,7 @@
       ],
       "external": false,
       "ur": false,
-      "strand": null
+      "strand": "vis_grammars"
     },
     {
       "id": "IATK",
@@ -527,8 +527,7 @@
         "IA",
         "DXR",
         "D3",
-        "VIS_GRAMMAR_VEGA",
-        "WEBXR_MATURE"
+        "VIS_GRAMMAR_VEGA"
       ],
       "external": false,
       "ur": false,
@@ -834,7 +833,7 @@
       "type": "platform",
       "subtitle": "Android XR, visionOS, Meta Horizon OS (2024–2026)",
       "start": 2024,
-      "end": 2029,
+      "end": 2026,
       "ancestors": [
         "UBICOMP"
       ],
@@ -850,7 +849,7 @@
       "type": "platform",
       "subtitle": "Gemini in Android XR; Apple Intelligence; Meta AI (2025–2026)",
       "start": 2025,
-      "end": 2029,
+      "end": 2026,
       "ancestors": [],
       "external": false,
       "ur": false,
@@ -864,7 +863,7 @@
       "type": "platform",
       "subtitle": "W3C WebXR Device API; WebGPU (2024–2026)",
       "start": 2024,
-      "end": 2029,
+      "end": 2026,
       "ancestors": [
         "UBICOMP"
       ],
@@ -950,8 +949,7 @@
       "start": 2023,
       "end": 2023,
       "ancestors": [
-        "SA_SITUATED",
-        "WEBXR_MATURE"
+        "SA_SITUATED"
       ],
       "external": false,
       "ur": false,
@@ -992,6 +990,24 @@
       "strand": "situated_analytics"
     },
     {
+      "id": "DEIMOS",
+      "name": "Deimos",
+      "shortName": "Deimos",
+      "cluster": "visualization",
+      "type": "foundation",
+      "subtitle": "Lee et al. CHI 2023",
+      "start": 2023,
+      "end": 2023,
+      "ancestors": [
+        "DXR",
+        "UNITY",
+        "VIS_GRAMMAR_VEGA"
+      ],
+      "external": false,
+      "ur": false,
+      "strand": "vis_grammars"
+    },
+    {
       "id": "WIZUALIZATION",
       "name": "Wizualization",
       "shortName": "Wizualization",
@@ -1001,7 +1017,6 @@
       "start": 2023,
       "end": 2023,
       "ancestors": [
-        "WEBXR_MATURE",
         "VIS_GRAMMAR_VEGA",
         "VIEW_MGMT",
         "VRIA",
@@ -1025,524 +1040,6 @@
         "WEBXR_MATURE",
         "VIS_GRAMMAR_VEGA",
         "D3"
-      ],
-      "external": false,
-      "ur": false,
-      "strand": null
-    },
-    {
-      "id": "C_FIELD_DCOG",
-      "name": "Field Studies of Distributed Analytical Cognition",
-      "shortName": "Field Studies of DCog",
-      "cluster": "cognition",
-      "type": "challenge",
-      "subtitle": "Longitudinal ethnographic work in real deployments",
-      "start": 2027,
-      "end": 2028,
-      "ancestors": [
-        "DCOG_INFOVIS"
-      ],
-      "external": false,
-      "ur": false,
-      "strand": null
-    },
-    {
-      "id": "C_SPATIAL_MEM",
-      "name": "Spatial Memory for Analytical Data",
-      "shortName": "Spatial Memory",
-      "cluster": "cognition",
-      "type": "challenge",
-      "subtitle": "Does returning to a location help resume the analytical thread?",
-      "start": 2027,
-      "end": 2028,
-      "ancestors": [
-        "EXT_COG_SCAIFE",
-        "SPACE_TO_THINK",
-        "IST"
-      ],
-      "external": false,
-      "ur": false,
-      "strand": null
-    },
-    {
-      "id": "C_FATIGUE",
-      "name": "Fatigue Models for Sustained Analytical Work",
-      "shortName": "Fatigue Models",
-      "cluster": "cognition",
-      "type": "challenge",
-      "subtitle": "Multi-hour sessions, not 10-minute tasks",
-      "start": 2027,
-      "end": 2028,
-      "ancestors": [
-        "GORILLA_ARM"
-      ],
-      "external": false,
-      "ur": false,
-      "strand": null
-    },
-    {
-      "id": "C_NO_ADVANTAGE",
-      "name": "When UA Offers No Advantage",
-      "shortName": "No-Advantage Cases",
-      "cluster": "cognition",
-      "type": "challenge",
-      "subtitle": "Honest empirical answers, not assumptions",
-      "start": 2027,
-      "end": 2028,
-      "ancestors": [
-        "C_FIELD_DCOG"
-      ],
-      "external": false,
-      "ur": false,
-      "strand": null
-    },
-    {
-      "id": "C_AI_SITUATED",
-      "name": "AI-Mediated Situated Analytics",
-      "shortName": "AI-Mediated SA",
-      "cluster": "context",
-      "type": "challenge",
-      "subtitle": "Connecting platform scene understanding to analytical reasoning",
-      "start": 2027,
-      "end": 2028,
-      "ancestors": [
-        "AI_SCENE",
-        "SA_SITUATED",
-        "RAGRUG"
-      ],
-      "external": false,
-      "ur": false,
-      "strand": "ai_partnership"
-    },
-    {
-      "id": "C_CHANNEL_ADAPT",
-      "name": "Automatic Channel Adaptation",
-      "shortName": "Channel Adaptation",
-      "cluster": "context",
-      "type": "challenge",
-      "subtitle": "Real-time channel suitability assessment",
-      "start": 2027,
-      "end": 2028,
-      "ancestors": [
-        "AI_SCENE"
-      ],
-      "external": false,
-      "ur": false,
-      "strand": null
-    },
-    {
-      "id": "C_MULTIMODAL",
-      "name": "Multimodal Fusion Outside the Lab",
-      "shortName": "Multimodal Fusion",
-      "cluster": "interaction",
-      "type": "challenge",
-      "subtitle": "Characterize failure modes under field conditions",
-      "start": 2027,
-      "end": 2028,
-      "ancestors": [
-        "SPATIAL_OS"
-      ],
-      "external": false,
-      "ur": false,
-      "strand": null
-    },
-    {
-      "id": "C_MICRO",
-      "name": "Micro-Interaction Design for Spatial Analytics",
-      "shortName": "Micro-Interaction Design",
-      "cluster": "interaction",
-      "type": "challenge",
-      "subtitle": "The missing right-click, undo, context menu",
-      "start": 2027,
-      "end": 2028,
-      "ancestors": [
-        "INTERACT_INTENTS",
-        "DIRECT_MANIP"
-      ],
-      "external": false,
-      "ur": false,
-      "strand": "spatial_conventions"
-    },
-    {
-      "id": "C_CHANNEL_SCALE",
-      "name": "Input Channel Characterization at Scale",
-      "shortName": "Channel Characterization",
-      "cluster": "interaction",
-      "type": "challenge",
-      "subtitle": "Cleveland & McGill for input channels",
-      "start": 2027,
-      "end": 2028,
-      "ancestors": [
-        "GRAPH_PERCEPT"
-      ],
-      "external": false,
-      "ur": false,
-      "strand": null
-    },
-    {
-      "id": "C_TILT",
-      "name": "The Tilt Problem",
-      "shortName": "Tilt Problem",
-      "cluster": "visualization",
-      "type": "challenge",
-      "subtitle": "Optimal chart orientation relative to analyst's body and gaze",
-      "start": 2027,
-      "end": 2028,
-      "ancestors": [
-        "GRAPH_PERCEPT",
-        "SA_SITUATED",
-        "TILT_MAP"
-      ],
-      "external": false,
-      "ur": false,
-      "strand": null
-    },
-    {
-      "id": "C_EMBED_SPATIAL",
-      "name": "Embedding vs. Spatializing (Empirical)",
-      "shortName": "Embedding vs. Spatializing",
-      "cluster": "visualization",
-      "type": "challenge",
-      "subtitle": "When does physical embedding outperform spatial void?",
-      "start": 2027,
-      "end": 2028,
-      "ancestors": [
-        "SA_SITUATED",
-        "GRAPH_PERCEPT"
-      ],
-      "external": false,
-      "ur": false,
-      "strand": null
-    },
-    {
-      "id": "C_LEGIBILITY",
-      "name": "Legibility Under Real Conditions",
-      "shortName": "Legibility in the Field",
-      "cluster": "visualization",
-      "type": "challenge",
-      "subtitle": "Overplotting, labels, color fidelity in authentic field conditions",
-      "start": 2027,
-      "end": 2028,
-      "ancestors": [
-        "GRAPH_PERCEPT",
-        "SA_SITUATED"
-      ],
-      "external": false,
-      "ur": false,
-      "strand": null
-    },
-    {
-      "id": "C_WEBXR_BENCH",
-      "name": "WebXR Performance Benchmarks",
-      "shortName": "WebXR Benchmarks",
-      "cluster": "platforms",
-      "type": "challenge",
-      "subtitle": "What scale of analytical data can web-based XR handle?",
-      "start": 2027,
-      "end": 2028,
-      "ancestors": [
-        "WEBXR_MATURE",
-        "DASHSPACE"
-      ],
-      "external": false,
-      "ur": false,
-      "strand": "cross_reality_platform"
-    },
-    {
-      "id": "C_TELEMETRY",
-      "name": "Instrumented Telemetry for Spatial Analytics",
-      "shortName": "Spatial Telemetry",
-      "cluster": "evaluation",
-      "type": "challenge",
-      "subtitle": "Standardized formats and analysis tools",
-      "start": 2027,
-      "end": 2028,
-      "ancestors": [
-        "SPATIAL_OS"
-      ],
-      "external": false,
-      "ur": false,
-      "strand": "eval_infrastructure"
-    },
-    {
-      "id": "C_PROXEMIC",
-      "name": "Proxemic Interaction for Shared Data",
-      "shortName": "Proxemic Interaction",
-      "cluster": "collaboration",
-      "type": "challenge",
-      "subtitle": "Body distance and orientation as implicit interaction signals",
-      "start": 2027,
-      "end": 2028,
-      "ancestors": [
-        "DCOG",
-        "IMM_COLLAB",
-        "PROXEMIC_LENSES"
-      ],
-      "external": false,
-      "ur": false,
-      "strand": "proxemic_collab"
-    },
-    {
-      "id": "C_VIS_GRAMMAR",
-      "name": "Visualization Grammars for Spatial Computing",
-      "shortName": "Spatial Vis Grammars",
-      "cluster": "visualization",
-      "type": "challenge",
-      "subtitle": "The spatial Vega-Lite",
-      "start": 2029,
-      "end": 2031,
-      "ancestors": [
-        "VIS_GRAMMAR_VEGA",
-        "C_EMBED_SPATIAL",
-        "C_LEGIBILITY",
-        "WIZUALIZATION"
-      ],
-      "external": false,
-      "ur": false,
-      "strand": null
-    },
-    {
-      "id": "C_CROSS_REALITY",
-      "name": "Cross-Reality Architectures",
-      "shortName": "Cross-Reality Architectures",
-      "cluster": "platforms",
-      "type": "challenge",
-      "subtitle": "Single codebase spanning phone to headset to wall",
-      "start": 2029,
-      "end": 2031,
-      "ancestors": [
-        "C_WEBXR_BENCH",
-        "SPATIAL_OS"
-      ],
-      "external": false,
-      "ur": false,
-      "strand": "cross_reality_platform"
-    },
-    {
-      "id": "C_ECO_BENCH",
-      "name": "Ecological Validity Benchmarks",
-      "shortName": "Ecological Benchmarks",
-      "cluster": "evaluation",
-      "type": "challenge",
-      "subtitle": "VAST for UA",
-      "start": 2029,
-      "end": 2031,
-      "ancestors": [
-        "C_TELEMETRY",
-        "C_FIELD_DCOG"
-      ],
-      "external": false,
-      "ur": false,
-      "strand": "eval_infrastructure"
-    },
-    {
-      "id": "C_LONGITUDINAL",
-      "name": "Longitudinal Field Deployments",
-      "shortName": "Longitudinal Deployments",
-      "cluster": "evaluation",
-      "type": "challenge",
-      "subtitle": "Weeks, not minutes",
-      "start": 2029,
-      "end": 2031,
-      "ancestors": [
-        "C_TELEMETRY",
-        "C_ECO_BENCH"
-      ],
-      "external": false,
-      "ur": false,
-      "strand": null
-    },
-    {
-      "id": "C_ASYMMETRIC",
-      "name": "Asymmetric Device Collaboration",
-      "shortName": "Asymmetric Collaboration",
-      "cluster": "collaboration",
-      "type": "challenge",
-      "subtitle": "One in AR headset, one on tablet, same analytical goal",
-      "start": 2029,
-      "end": 2031,
-      "ancestors": [
-        "C_PROXEMIC",
-        "C_CROSS_REALITY",
-        "STREAM",
-        "MARVIS",
-        "XVA_SURVEY",
-        "EYES_SHOES"
-      ],
-      "external": false,
-      "ur": false,
-      "strand": "proxemic_collab"
-    },
-    {
-      "id": "C_PLACE_MEM",
-      "name": "Place-Based Analytical Memory",
-      "shortName": "Place-Based Memory",
-      "cluster": "context",
-      "type": "challenge",
-      "subtitle": "Spatial bookmarking at room, building, and site scale",
-      "start": 2029,
-      "end": 2031,
-      "ancestors": [
-        "C_SPATIAL_MEM",
-        "C_AI_SITUATED"
-      ],
-      "external": false,
-      "ur": false,
-      "strand": null
-    },
-    {
-      "id": "C_AGENTIC",
-      "name": "Agentic AI as Cognitive Partner",
-      "shortName": "Agentic AI Partner",
-      "cluster": "context",
-      "type": "challenge",
-      "subtitle": "The analyst's DCog loop includes a non-human agent",
-      "start": 2029,
-      "end": 2031,
-      "ancestors": [
-        "C_AI_SITUATED",
-        "C_CHANNEL_ADAPT"
-      ],
-      "external": false,
-      "ur": false,
-      "strand": "ai_partnership"
-    },
-    {
-      "id": "C_REPRO",
-      "name": "Reproducibility Infrastructure",
-      "shortName": "Reproducibility Infrastructure",
-      "cluster": "platforms",
-      "type": "challenge",
-      "subtitle": "Shared toolkits that outlive the graduating PhD student",
-      "start": 2029,
-      "end": 2031,
-      "ancestors": [
-        "C_WEBXR_BENCH",
-        "ANU_JS"
-      ],
-      "external": false,
-      "ur": false,
-      "strand": null
-    },
-    {
-      "id": "C_VIBE",
-      "name": "Vibe Coding for Analytical Tools",
-      "shortName": "Vibe Coding",
-      "cluster": "platforms",
-      "type": "challenge",
-      "subtitle": "LLMs generate web code; what makes the result analytically sound?",
-      "start": 2029,
-      "end": 2031,
-      "ancestors": [
-        "WEBXR_MATURE",
-        "AI_SCENE"
-      ],
-      "external": false,
-      "ur": false,
-      "strand": null
-    },
-    {
-      "id": "C_FAILURE",
-      "name": "Deployment Failure Analysis",
-      "shortName": "Failure Analysis",
-      "cluster": "evaluation",
-      "type": "challenge",
-      "subtitle": "The most valuable and least published evidence",
-      "start": 2029,
-      "end": 2031,
-      "ancestors": [
-        "C_LONGITUDINAL"
-      ],
-      "external": false,
-      "ur": false,
-      "strand": null
-    },
-    {
-      "id": "C_REMOTE_HYBRID",
-      "name": "Remote + Co-Located Hybrids",
-      "shortName": "Remote/Co-Located Hybrids",
-      "cluster": "collaboration",
-      "type": "challenge",
-      "subtitle": "Sharing spatial context without sharing physical space",
-      "start": 2029,
-      "end": 2031,
-      "ancestors": [
-        "C_ASYMMETRIC"
-      ],
-      "external": false,
-      "ur": false,
-      "strand": null
-    },
-    {
-      "id": "C_AUTHORING",
-      "name": "Authoring for Domain Experts",
-      "shortName": "Domain-Expert Authoring",
-      "cluster": "visualization",
-      "type": "challenge",
-      "subtitle": "Marine biologists creating their own spatial visualizations",
-      "start": 2033,
-      "end": 2035,
-      "ancestors": [
-        "C_VIS_GRAMMAR",
-        "C_CROSS_REALITY",
-        "C_REPRO",
-        "NO_SPOON"
-      ],
-      "external": false,
-      "ur": false,
-      "strand": null
-    },
-    {
-      "id": "C_CROSS_INTERACT",
-      "name": "Cross-Reality Interaction Continuity",
-      "shortName": "Cross-Reality Continuity",
-      "cluster": "interaction",
-      "type": "challenge",
-      "subtitle": "Consistent channel vocabulary across phone, AR, VR",
-      "start": 2033,
-      "end": 2035,
-      "ancestors": [
-        "C_CROSS_REALITY",
-        "C_CHANNEL_SCALE",
-        "C_AGENTIC"
-      ],
-      "external": false,
-      "ur": false,
-      "strand": null
-    },
-    {
-      "id": "C_CONVENTIONS",
-      "name": "Evidence-Based Spatial Conventions",
-      "shortName": "Spatial Conventions",
-      "cluster": "interaction",
-      "type": "challenge",
-      "subtitle": "The spatial computing design patterns that stick",
-      "start": 2033,
-      "end": 2035,
-      "ancestors": [
-        "C_LONGITUDINAL",
-        "C_ECO_BENCH",
-        "C_MICRO"
-      ],
-      "external": false,
-      "ur": false,
-      "strand": "spatial_conventions"
-    },
-    {
-      "id": "C_ANALYST_2035",
-      "name": "The Analyst of 2035",
-      "shortName": "The Analyst of 2035",
-      "cluster": "cognition",
-      "type": "challenge",
-      "subtitle": "Everything converges",
-      "start": 2033,
-      "end": 2035,
-      "ancestors": [
-        "C_AGENTIC",
-        "C_CROSS_INTERACT",
-        "C_AUTHORING",
-        "C_CONVENTIONS",
-        "C_FAILURE"
       ],
       "external": false,
       "ur": false,
@@ -2030,7 +1527,9 @@
       "label": "Visualization Grammars",
       "members": [
         "VIS_GRAMMAR_WILKINSON",
-        "VIS_GRAMMAR_VEGA"
+        "VIS_GRAMMAR_VEGA",
+        "DXR",
+        "DEIMOS"
       ]
     },
     "situated_analytics": {
@@ -2091,13 +1590,6 @@
         "AR_SURVEY"
       ]
     },
-    "cross_reality_platform": {
-      "label": "Cross-Reality Platforms",
-      "members": [
-        "C_WEBXR_BENCH",
-        "C_CROSS_REALITY"
-      ]
-    },
     "gulfs": {
       "label": "Gulfs of Interaction",
       "members": [
@@ -2119,33 +1611,10 @@
         "SCI_INTERACTION"
       ]
     },
-    "spatial_conventions": {
-      "label": "Spatial Interaction Conventions",
-      "members": [
-        "C_MICRO",
-        "C_CONVENTIONS"
-      ]
-    },
-    "ai_partnership": {
-      "label": "AI as Analytical Partner",
-      "members": [
-        "C_AI_SITUATED",
-        "C_AGENTIC"
-      ]
-    },
-    "eval_infrastructure": {
-      "label": "Evaluation Infrastructure",
-      "members": [
-        "C_TELEMETRY",
-        "C_ECO_BENCH"
-      ]
-    },
     "proxemic_collab": {
       "label": "Proxemic Collaboration",
       "members": [
-        "PROXEMIC_LENSES",
-        "C_PROXEMIC",
-        "C_ASYMMETRIC"
+        "PROXEMIC_LENSES"
       ]
     }
   }

@@ -20,6 +20,12 @@ analytics, but stands on its own as a tool for exploring how ideas beget one ano
 - **Focus & hover linking** — click a row or column to lock focus on its ancestry;
   hover to preview the linked row/column band across both panels.
 - **SVG export** — download the current view as a standalone, dependency-free `.svg`.
+- **Text size & line weight** — scale fonts and strokes independently (Display row), or
+  use the **Screen** (1.2× text, 1.5× lines; the default) and **Print** (1.5× text, 2×
+  lines) presets. The canvas width stays roughly fixed while text grows, so larger text
+  stays legible when a figure is scaled to the page. The choice is mirrored in the URL
+  (`?text=1.5&line=2`, each 0.5–3), so a link reproduces a figure. For book figures, pick
+  Print (plus Monochrome if needed) and then Export SVG.
 
 ## Running locally
 
